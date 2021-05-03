@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 interface BluetoothStates {
@@ -20,19 +21,33 @@ class AndroidBluetoothStates @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter
 ) : BluetoothStates {
 
-    override fun states(): Flow<BluetoothState> = callbackFlow {
-        val broadcastReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                if (intent.action != BluetoothAdapter.ACTION_STATE_CHANGED) {
-                    return
-                }
+    override fun states(): Flow<BluetoothState> {
+        val bluetoothStates = callbackFlow<BluetoothState> {
+            val broadcastReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    if (intent.action != BluetoothAdapter.ACTION_STATE_CHANGED) {
+                        return
+                    }
 
-                offer(bluetoothAdapter.state.toBluetoothState())
+                    offer(bluetoothAdapter.state.toBluetoothState())
+                }
             }
+
+            context.registerReceiver(broadcastReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+
+            awaitClose { context.unregisterReceiver(broadcastReceiver) }
         }
 
-        context.registerReceiver(broadcastReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
+        return bluetoothStates.onStart { emit(bluetoothAdapter.state.toBluetoothState()) }
+    }
 
-        awaitClose { context.unregisterReceiver(broadcastReceiver) }
+    private fun Int.toBluetoothState(): BluetoothState {
+        return when (this) {
+            BluetoothAdapter.STATE_OFF -> BluetoothState.OFF
+            BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.TURNING_OFF
+            BluetoothAdapter.STATE_TURNING_ON -> BluetoothState.TURNING_ON
+            BluetoothAdapter.STATE_ON -> BluetoothState.ON
+            else -> error("Unknown bluetooth state: $this")
+        }
     }
 }

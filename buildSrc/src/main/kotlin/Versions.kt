@@ -29,7 +29,7 @@ object Versions {
     const val kotlin = "1.4.31"
     const val ktlintGradle = "10.0.0"
     const val leakCanary = "2.6"
-    const val lifecycle = "2.3.0-rc01"
+    const val lifecycle = "2.4.0-alpha01"
     const val material = "1.4.0-alpha01"
     const val mockito = "3.4.4"
     const val moshi = "1.11.0"

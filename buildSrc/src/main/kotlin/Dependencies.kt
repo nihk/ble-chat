@@ -109,7 +109,7 @@ object Dependencies {
     }
 
     object Lifecycle {
-        const val runtime = "androidx.lifecycle:lifecycle-runtime:${Versions.lifecycle}"
+        const val runtime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
         const val java8 = "androidx.lifecycle:lifecycle-common-java8:${Versions.lifecycle}"
         const val compiler = "androidx.lifecycle:lifecycle-compiler:${Versions.lifecycle}"
         const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"

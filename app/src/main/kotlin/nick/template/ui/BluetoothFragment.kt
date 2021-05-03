@@ -6,6 +6,8 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.flow.launchIn
@@ -34,8 +36,9 @@ class BluetoothFragment @Inject constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = BluetoothFragmentBinding.bind(view)
 
-        // todo: use repeating job so underlying mechanisms close on onStop instead of pausing
         viewModel.states
+            // Battery efficiency - don't listen to Bluetooth while in background
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
                 val permissionState = state.permissionsState
                 when (permissionState) {

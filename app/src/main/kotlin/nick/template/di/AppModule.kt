@@ -9,10 +9,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import nick.template.data.AndroidBluetoothRepository
-import nick.template.data.AndroidBluetoothStates
-import nick.template.data.BluetoothRepository
-import nick.template.data.BluetoothStates
+import nick.template.data.*
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -35,4 +32,7 @@ abstract class AppModule {
 
     @Binds
     abstract fun bluetoothStates(bluetoothStates: AndroidBluetoothStates): BluetoothStates
+
+    @Binds
+    abstract fun bluetoothScanner(bluetoothScanner: AndroidBluetoothScanner): BluetoothScanner
 }

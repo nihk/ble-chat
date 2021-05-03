@@ -52,7 +52,7 @@ class BluetoothFragment @Inject constructor(
 //                        }
                     }
                     PermissionsState.RequestingPermissions -> binding.message.text = "Requesting permissions..."
-                    PermissionsState.GotPermissions -> binding.message.text = "Got permissions! bluetooth state: ${state.bluetoothState}"
+                    PermissionsState.GotPermissions -> binding.message.text = "Got permissions! scan result: ${state.scanResult}"
                     PermissionsState.DeniedPermissions -> binding.message.text = "Can't do BLE without permissions :("
                 }
             }

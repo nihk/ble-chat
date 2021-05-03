@@ -4,11 +4,11 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 interface BluetoothRepository {
-    fun states(): Flow<BluetoothState>
+    fun scanningResults(): Flow<BluetoothScanner.Result>
 }
 
 class AndroidBluetoothRepository @Inject constructor(
-    private val bluetoothStates: BluetoothStates
+    private val bluetoothScanner: BluetoothScanner
 ) : BluetoothRepository {
-    override fun states(): Flow<BluetoothState> = bluetoothStates.states()
+    override fun scanningResults(): Flow<BluetoothScanner.Result> = bluetoothScanner.results()
 }

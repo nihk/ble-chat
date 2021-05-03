@@ -7,7 +7,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import nick.template.data.BluetoothRepository
-import nick.template.data.BluetoothState
+import nick.template.data.BluetoothScanner
 import javax.inject.Inject
 
 class BluetoothViewModel(
@@ -15,10 +15,10 @@ class BluetoothViewModel(
 ) : ViewModel() {
 
     private val permissionsStates = MutableStateFlow(PermissionsState.RequestPermissions)
-    val states = combine(permissionsStates, repository.states()) { permissionState, bluetoothState ->
+    val states = combine(permissionsStates, repository.scanningResults()) { permissionState, scanResult ->
         State(
             permissionsState = permissionState,
-            bluetoothState = bluetoothState
+            scanResult = scanResult
         )
     }
 
@@ -53,7 +53,7 @@ class BluetoothViewModel(
 }
 
 data class State(
-    val bluetoothState: BluetoothState,
+    val scanResult: BluetoothScanner.Result,
     val permissionsState: PermissionsState
 )
 

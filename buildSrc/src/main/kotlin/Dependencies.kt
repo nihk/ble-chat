@@ -66,10 +66,10 @@ object Dependencies {
         const val compiler = "com.google.dagger:dagger-compiler:${Versions.dagger}"
 
         object Hilt {
-            const val plugin = "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}"
-            const val runtime = "com.google.dagger:hilt-android:${Versions.hilt}"
-            const val testing = "com.google.dagger:hilt-android-testing:${Versions.hilt}"
-            const val compiler = "com.google.dagger:hilt-android-compiler:${Versions.hilt}"
+            const val plugin = "com.google.dagger:hilt-android-gradle-plugin:${Versions.dagger}"
+            const val runtime = "com.google.dagger:hilt-android:${Versions.dagger}"
+            const val testing = "com.google.dagger:hilt-android-testing:${Versions.dagger}"
+            const val compiler = "com.google.dagger:hilt-android-compiler:${Versions.dagger}"
 
             object Jetpack {
                 const val lifecycleViewModel = "androidx.hilt:hilt-lifecycle-viewmodel:${Versions.hiltJetpack}"

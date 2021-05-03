@@ -4,28 +4,39 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import nick.template.data.BluetoothRepository
+import nick.template.data.BluetoothState
 import javax.inject.Inject
 
-class BluetoothViewModel : ViewModel() {
+class BluetoothViewModel(
+    private val repository: BluetoothRepository
+) : ViewModel() {
 
-    private val states: MutableStateFlow<State> = MutableStateFlow(State.RequestPermissions)
-    fun states(): Flow<State> = states
+    private val permissionsStates = MutableStateFlow(PermissionsState.RequestPermissions)
+    val states = combine(permissionsStates, repository.states()) { permissionState, bluetoothState ->
+        State(
+            permissionsState = permissionState,
+            bluetoothState = bluetoothState
+        )
+    }
 
     fun setPermissionsResult(gotPermissions: Boolean) {
-        states.value = if (gotPermissions) {
-            State.GotPermissions
+        permissionsStates.value = if (gotPermissions) {
+            PermissionsState.GotPermissions
         } else {
-            State.DeniedPermissions
+            PermissionsState.DeniedPermissions
         }
     }
 
     fun onRequestingPermissions() {
-        states.value = State.RequestingPermissions
+        permissionsStates.value = PermissionsState.RequestingPermissions
     }
 
-    class Factory @Inject constructor() {
+    class Factory @Inject constructor(
+        private val repository: BluetoothRepository
+    ) {
         fun create(owner: SavedStateRegistryOwner): AbstractSavedStateViewModelFactory {
             return object : AbstractSavedStateViewModelFactory(owner, null) {
                 override fun <T : ViewModel?> create(
@@ -34,16 +45,21 @@ class BluetoothViewModel : ViewModel() {
                     handle: SavedStateHandle
                 ): T {
                     @Suppress("UNCHECKED_CAST")
-                    return BluetoothViewModel() as T
+                    return BluetoothViewModel(repository) as T
                 }
             }
         }
     }
 }
 
-sealed class State {
-    object RequestPermissions : State()
-    object RequestingPermissions : State()
-    object GotPermissions : State()
-    object DeniedPermissions : State()
+data class State(
+    val bluetoothState: BluetoothState,
+    val permissionsState: PermissionsState
+)
+
+enum class PermissionsState {
+    RequestPermissions,
+    RequestingPermissions,
+    GotPermissions,
+    DeniedPermissions
 }

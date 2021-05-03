@@ -1,7 +1,6 @@
 package nick.template.ui
 
 import android.Manifest
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -16,8 +15,8 @@ import nick.template.databinding.BluetoothFragmentBinding
 import nick.template.navigation.AppNavGraph
 import javax.inject.Inject
 
-// todo: tag game - click a button then the others' device says "you're it!" Click it for "not it!"
-//  alternating red and blue colours
+// todo: tag game - shows a list of nearby devices and you can tag them - i.e. "you're it!" and your
+//  status shown as red or blue IT and NOT IT, respectively
 class BluetoothFragment @Inject constructor(
     private val vmFactory: BluetoothViewModel.Factory
 ) : Fragment(R.layout.bluetooth_fragment) {
@@ -35,11 +34,13 @@ class BluetoothFragment @Inject constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = BluetoothFragmentBinding.bind(view)
 
-        viewModel.states()
+        // todo: use repeating job so underlying mechanisms close on onStop instead of pausing
+        viewModel.states
             .onEach { state ->
-                when (state) {
-                    State.RequestPermissions -> {
-                        // todo: use
+                val permissionState = state.permissionsState
+                when (permissionState) {
+                    PermissionsState.RequestPermissions -> {
+                        // todo: use Companion device pairing for O+
 //                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //                            viewModel.setPermissionsResult(true)
 //                        } else {
@@ -47,9 +48,9 @@ class BluetoothFragment @Inject constructor(
                             requestPermissions()
 //                        }
                     }
-                    State.RequestingPermissions -> binding.message.text = "Requesting permissions..."
-                    State.GotPermissions -> binding.message.text = "Got permissions!"
-                    State.DeniedPermissions -> binding.message.text = "Can't do BLE without permissions :("
+                    PermissionsState.RequestingPermissions -> binding.message.text = "Requesting permissions..."
+                    PermissionsState.GotPermissions -> binding.message.text = "Got permissions! bluetooth state: ${state.bluetoothState}"
+                    PermissionsState.DeniedPermissions -> binding.message.text = "Can't do BLE without permissions :("
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)

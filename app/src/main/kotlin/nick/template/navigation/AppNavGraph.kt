@@ -1,9 +1,10 @@
 package nick.template.navigation
 
 object AppNavGraph {
-    const val id = 1
+    val id = IdGenerator.next()
 
     object Destination {
-        const val main = 2
+        val bluetooth = IdGenerator.next()
+        val permissions = IdGenerator.next()
     }
 }

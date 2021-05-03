@@ -23,9 +23,10 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     private fun createNavGraph(navController: NavController) {
         navController.graph = navController.createGraph(
             id = AppNavGraph.id,
-            startDestination = AppNavGraph.Destination.main
+            startDestination = AppNavGraph.Destination.bluetooth
         ) {
-            fragment<MainFragment>(AppNavGraph.Destination.main)
+            fragment<BluetoothFragment>(AppNavGraph.Destination.bluetooth)
+            fragment<PermissionsFragment>(AppNavGraph.Destination.permissions)
         }
     }
 }

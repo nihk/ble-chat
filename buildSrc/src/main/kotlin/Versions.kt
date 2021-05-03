@@ -1,5 +1,5 @@
 object Versions {
-    const val activity = "1.3.0-alpha05"
+    const val activity = "1.3.0-alpha07"
     const val annotation = "1.2.0-alpha01"
     const val androidGradlePlugin = "4.1.3"
     const val appCompat = "1.3.0-rc01"
@@ -21,7 +21,7 @@ object Versions {
     const val documentFile = "1.0.1"
     const val espresso = "3.3.0-rc01"
     const val exoPlayer = "2.12.3"
-    const val fragment = "1.3.0-rc02"
+    const val fragment = "1.3.3"
     const val hamcrest = "1.3"
     const val hilt = "$dagger-beta"
     const val hiltJetpack = "1.0.0-alpha01"

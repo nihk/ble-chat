@@ -14,7 +14,7 @@ import dagger.hilt.android.components.ActivityComponent
 import dagger.multibindings.IntoMap
 import nick.template.R
 import nick.template.ui.AppFragmentFactory
-import nick.template.ui.MainFragment
+import nick.template.ui.BluetoothFragment
 
 @Module
 @InstallIn(ActivityComponent::class)
@@ -31,8 +31,8 @@ abstract class MainModule {
 
     @Binds
     @IntoMap
-    @FragmentKey(MainFragment::class)
-    abstract fun mainFragment(mainFragment: MainFragment): Fragment
+    @FragmentKey(BluetoothFragment::class)
+    abstract fun mainFragment(bluetoothFragment: BluetoothFragment): Fragment
 
     @Binds
     abstract fun fragmentFactory(appFragmentFactory: AppFragmentFactory): FragmentFactory

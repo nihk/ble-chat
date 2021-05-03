@@ -22,6 +22,7 @@ androidAppConfig {
 
 dependencies {
     implementation(Dependencies.activity)
+    implementation(Dependencies.Fragment.runtime)
     implementation(Dependencies.appCompat)
     implementation(Dependencies.coreKtx)
     implementation(Dependencies.vectorDrawable)

@@ -1,7 +1,6 @@
 package nick.template.data
 
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import kotlinx.coroutines.channels.awaitClose
@@ -19,7 +18,7 @@ interface BluetoothScanner {
 }
 
 // Note: starting/stopping 5 or more times within a 30 second window will make the next startScan
-// call silently fail. TODO: Can that be reconciled in the results() flow?
+// call silently fail indefinitely. TODO: Can that be reconciled in the results() flow?
 // Scanning continuously for 30+ minutes will change scanning to opportunistic (effectively
 // stopping it). TODO: Reconcile this, too.
 class AndroidBluetoothScanner @Inject constructor(
@@ -33,20 +32,17 @@ class AndroidBluetoothScanner @Inject constructor(
         }
         val callback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
-                if (isClosedForSend) return
                 val addresses = listOf(result.device.address)
-                offer(BluetoothScanner.Result.Devices(addresses))
+                offerSafely(BluetoothScanner.Result.Devices(addresses))
             }
 
             override fun onScanFailed(errorCode: Int) {
-                if (isClosedForSend) return
-                offer(BluetoothScanner.Result.Error(errorCode))
+                offerSafely(BluetoothScanner.Result.Error(errorCode))
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>) {
-                if (isClosedForSend) return
                 val addresses = results.map { result -> result.device.address }
-                offer(BluetoothScanner.Result.Devices(addresses))
+                offerSafely(BluetoothScanner.Result.Devices(addresses))
             }
         }
 

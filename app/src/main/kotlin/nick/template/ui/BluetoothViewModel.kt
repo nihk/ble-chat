@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -25,7 +24,8 @@ class BluetoothViewModel(
     private val manualTriggers = MutableStateFlow(Any())
 
     fun states(): Flow<State> {
-        return combine(manualTriggers, repository.bluetoothStates()) { _, bluetoothState -> bluetoothState }
+        return manualTriggers
+            .flatMapLatest { repository.bluetoothStates() }
             .flatMapLatest { bluetoothState ->
                 val permissionsState = repository.permissionsState()
                 when {

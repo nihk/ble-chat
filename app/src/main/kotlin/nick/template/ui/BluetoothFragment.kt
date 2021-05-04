@@ -15,8 +15,7 @@ import nick.template.R
 import nick.template.databinding.BluetoothFragmentBinding
 import javax.inject.Inject
 
-// todo: tag game - shows a list of nearby devices and you can tag them - i.e. "you're it!" and your
-//  status shown as red or blue IT and NOT IT, respectively
+// todo: bluetooth chat interface
 class BluetoothFragment @Inject constructor(
     private val vmFactory: BluetoothViewModel.Factory
 ) : Fragment(R.layout.bluetooth_fragment) {

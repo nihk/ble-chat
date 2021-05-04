@@ -26,24 +26,19 @@ class BluetoothViewModel(
 
     fun states(): Flow<State> {
         return combine(manualTriggers, repository.bluetoothStates()) { _, bluetoothState -> bluetoothState }
-            .map { bluetoothState ->
-                BluetoothAvailability(
-                    permissionsState = repository.permissionsState(),
-                    bluetoothState = bluetoothState
-                )
-            }
-            .flatMapLatest { bluetoothAvailability ->
+            .flatMapLatest { bluetoothState ->
+                val permissionsState = repository.permissionsState()
                 when {
-                    bluetoothAvailability.permissionsState is BluetoothPermissions.State.MissingPermissions -> {
+                    permissionsState is BluetoothPermissions.State.MissingPermissions -> {
                         if (canRequestPermissions) {
                             canRequestPermissions = false
-                            flowOf(State.RequestPermissions(bluetoothAvailability.permissionsState.permissions))
+                            flowOf(State.RequestPermissions(permissionsState.permissions))
                         } else {
                             canRequestPermissions = true
                             flowOf(State.DeniedPermissions)
                         }
                     }
-                    bluetoothAvailability.bluetoothState !is BluetoothState.On ->
+                    bluetoothState !is BluetoothState.On ->
                         flowOf(State.BluetoothIsntOn)
                     else -> repository.scanningResults()
                         .map { result ->
@@ -84,8 +79,3 @@ sealed class State {
     object StartedScanning : State()
     data class Scanned(val result: BluetoothScanner.Result) : State()
 }
-
-private data class BluetoothAvailability(
-    val permissionsState: BluetoothPermissions.State,
-    val bluetoothState: BluetoothState
-)

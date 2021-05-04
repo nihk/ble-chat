@@ -47,7 +47,7 @@ class AndroidBluetoothStates @Inject constructor(
             BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.TurningOff
             BluetoothAdapter.STATE_TURNING_ON -> BluetoothState.TurningOn
             BluetoothAdapter.STATE_ON -> BluetoothState.On
-            // BluetoothAdapter can sometimes emit hidden states (lol) on Android M.
+            // BluetoothAdapter can sometimes emit hidden, internal states (lol) on Android M.
             // See: https://github.com/iDevicesInc/SweetBlue/wiki/Android-BLE-Issues#android-m-issues
             else -> BluetoothState.Unknown(this)
         }

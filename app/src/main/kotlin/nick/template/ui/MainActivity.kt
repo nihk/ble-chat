@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
             startDestination = AppNavGraph.Destination.bluetooth
         ) {
             fragment<BluetoothFragment>(AppNavGraph.Destination.bluetooth)
-            fragment<PermissionsFragment>(AppNavGraph.Destination.permissions)
         }
     }
 }

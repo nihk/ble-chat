@@ -5,6 +5,5 @@ object AppNavGraph {
 
     object Destination {
         val bluetooth = IdGenerator.next()
-        val permissions = IdGenerator.next()
     }
 }

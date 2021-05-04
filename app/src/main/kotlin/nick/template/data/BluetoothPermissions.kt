@@ -11,7 +11,7 @@ interface BluetoothPermissions {
     fun state(): State
 
     sealed class State {
-        data class NeedsPermissions(val permissions: List<String>) : State()
+        data class MissingPermissions(val permissions: List<String>) : State()
         object HasPermissions : State()
     }
 }
@@ -28,7 +28,7 @@ class AndroidBluetoothPermissions @Inject constructor(
         return if (hasPermissions) {
             BluetoothPermissions.State.HasPermissions
         } else {
-            BluetoothPermissions.State.NeedsPermissions(requiredPermissions())
+            BluetoothPermissions.State.MissingPermissions(requiredPermissions())
         }
     }
 

@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -20,11 +22,10 @@ class BluetoothViewModel(
 ) : ViewModel() {
 
     private var canRequestPermissions = true
+    private val manualTriggers = MutableStateFlow(Any())
 
-    val states = states()
-
-    private fun states(): Flow<State> {
-        return repository.bluetoothStates()
+    fun states(): Flow<State> {
+        return combine(manualTriggers, repository.bluetoothStates()) { _, bluetoothState -> bluetoothState }
             .map { bluetoothState ->
                 BluetoothAvailability(
                     permissionsState = repository.permissionsState(),
@@ -33,10 +34,10 @@ class BluetoothViewModel(
             }
             .flatMapLatest { bluetoothAvailability ->
                 when {
-                    bluetoothAvailability.permissionsState is BluetoothPermissions.State.NeedsPermissions -> {
+                    bluetoothAvailability.permissionsState is BluetoothPermissions.State.MissingPermissions -> {
                         if (canRequestPermissions) {
                             canRequestPermissions = false
-                            flowOf(State.NeedsPermissions(bluetoothAvailability.permissionsState.permissions))
+                            flowOf(State.RequestPermissions(bluetoothAvailability.permissionsState.permissions))
                         } else {
                             canRequestPermissions = true
                             flowOf(State.DeniedPermissions)
@@ -45,10 +46,17 @@ class BluetoothViewModel(
                     bluetoothAvailability.bluetoothState !is BluetoothState.On ->
                         flowOf(State.BluetoothIsntOn)
                     else -> repository.scanningResults()
-                        .map { result -> State.Scanned(result) as State }
+                        .map { result ->
+                            @Suppress("USELESS_CAST")
+                            State.Scanned(result) as State
+                        }
                         .onStart { emit(State.StartedScanning) }
                 }
             }
+    }
+
+    fun retrigger() {
+        manualTriggers.value = Any()
     }
 
     class Factory @Inject constructor(
@@ -70,7 +78,7 @@ class BluetoothViewModel(
 }
 
 sealed class State {
-    data class NeedsPermissions(val permissions: List<String>) : State()
+    data class RequestPermissions(val permissions: List<String>) : State()
     object BluetoothIsntOn : State()
     object DeniedPermissions : State()
     object StartedScanning : State()

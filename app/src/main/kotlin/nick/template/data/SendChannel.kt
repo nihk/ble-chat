@@ -2,6 +2,9 @@ package nick.template.data
 
 import kotlinx.coroutines.channels.SendChannel
 
-fun <E> SendChannel<E>.offerSafely(element: E): Boolean {
-    return !isClosedForSend && offer(element)
+// https://github.com/Kotlin/kotlinx.coroutines/issues/974
+fun <E> SendChannel<E>.offerSafely(element: E) {
+    runCatching {
+        offer(element)
+    }
 }

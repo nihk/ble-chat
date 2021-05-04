@@ -20,6 +20,8 @@ class BluetoothViewModel(
     private val repository: BluetoothRepository
 ) : ViewModel() {
 
+    // If a user denies permissions, they shouldn't immediately afterwards get spammed by another
+    // request for those same permissions.
     private var canRequestPermissions = true
     private val manualTriggers = MutableStateFlow(Any())
 
@@ -38,8 +40,7 @@ class BluetoothViewModel(
                             flowOf(State.DeniedPermissions)
                         }
                     }
-                    bluetoothState !is BluetoothState.On ->
-                        flowOf(State.BluetoothIsntOn)
+                    bluetoothState !is BluetoothState.On -> flowOf(State.BluetoothIsntOn)
                     else -> repository.scanningResults()
                         .map { result ->
                             @Suppress("USELESS_CAST")

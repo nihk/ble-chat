@@ -20,8 +20,11 @@ interface BluetoothScanner {
     }
 }
 
+// Note: starting/stopping 5 or more times within a 30 second window will make the next startScan
+// call silently fail.
 class AndroidBluetoothScanner @Inject constructor(
-    private val bluetoothAdapter: BluetoothAdapter
+    private val bluetoothAdapter: BluetoothAdapter,
+    private val scanningConfig: ScanningConfig
 ) : BluetoothScanner {
 
     override fun results(): Flow<BluetoothScanner.Result> {
@@ -48,13 +51,13 @@ class AndroidBluetoothScanner @Inject constructor(
                 }
             }
 
-            bluetoothLeScanner.startScan(callback)
+            bluetoothLeScanner.startScan(scanningConfig.filters, scanningConfig.scanSettings, callback)
 
             awaitClose { bluetoothLeScanner.stopScan(callback) }
         }
 
         return flow
             .conflate()
-            .onEach { delay(400L) }
+            .onEach { delay(scanningConfig.emissionDelay.toLongMilliseconds()) }
     }
 }

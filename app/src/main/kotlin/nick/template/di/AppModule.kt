@@ -17,6 +17,8 @@ import nick.template.data.BluetoothPermissions
 import nick.template.data.BluetoothRepository
 import nick.template.data.BluetoothScanner
 import nick.template.data.BluetoothStates
+import nick.template.data.DefaultScanningConfig
+import nick.template.data.ScanningConfig
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -45,4 +47,7 @@ abstract class AppModule {
 
     @Binds
     abstract fun bluetoothPermissions(bluetoothPermissions: AndroidBluetoothPermissions): BluetoothPermissions
+
+    @Binds
+    abstract fun scanningConfig(scanningConfig: DefaultScanningConfig): ScanningConfig
 }

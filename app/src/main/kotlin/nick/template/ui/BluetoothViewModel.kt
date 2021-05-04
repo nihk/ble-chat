@@ -19,7 +19,7 @@ class BluetoothViewModel(
     private val repository: BluetoothRepository
 ) : ViewModel() {
 
-    private var canRequestPermissions = false
+    private var canRequestPermissions = true
 
     val states = states()
 

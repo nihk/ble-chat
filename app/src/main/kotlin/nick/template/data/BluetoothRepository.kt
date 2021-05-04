@@ -9,7 +9,7 @@ interface BluetoothRepository {
     fun permissionsState(): BluetoothPermissions.State
 }
 
-class AndroidBluetoothRepository @Inject constructor(
+class DefaultBluetoothRepository @Inject constructor(
     private val bluetoothStates: BluetoothStates,
     private val bluetoothScanner: BluetoothScanner,
     private val bluetoothPermissions: BluetoothPermissions

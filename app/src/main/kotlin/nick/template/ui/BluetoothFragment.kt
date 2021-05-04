@@ -47,7 +47,8 @@ class BluetoothFragment @Inject constructor(
     private fun requestPermissions(permissions: List<String>) {
         val bundle = PermissionsFragment.bundle(permissions)
         // Ask for permissions in a new Fragment. This means once permissions are granted/denied
-        // in that new Fragment, the navigation comes back here and resubscribes to ViewModel states.
+        // in that new Fragment, the navigation comes back here and resubscribes to ViewModel states
+        // because a new View is created.
         findNavController().navigate(AppNavGraph.Destination.permissions, bundle)
     }
 }

@@ -4,9 +4,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
@@ -18,20 +16,19 @@ class PermissionsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (hasPermissions()) {
-            setResult(true)
+            close()
         } else {
             lifecycleScope.launch {
                 val result = activityResult(
                     permissions,
                     ActivityResultContracts.RequestMultiplePermissions()
                 )
-                setResult(gotPermissions = result.all { it.value })
+                close()
             }
         }
     }
 
-    private fun setResult(gotPermissions: Boolean) {
-        setFragmentResult(RESULT_REQUEST_KEY, bundleOf(KEY_GOT_PERMISSIONS to gotPermissions))
+    private fun close() {
         findNavController().popBackStack()
     }
 
@@ -42,8 +39,6 @@ class PermissionsFragment : Fragment() {
     }
 
     companion object {
-        const val RESULT_REQUEST_KEY = "permissions_result_request_key"
-        const val KEY_GOT_PERMISSIONS = "got_permissions"
         private const val KEY_PERMISSIONS_ARG = "permissions_arg"
 
         fun bundle(permissions: List<String>): Bundle {

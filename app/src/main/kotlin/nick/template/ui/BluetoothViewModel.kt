@@ -4,34 +4,51 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import nick.template.data.BluetoothPermissions
 import nick.template.data.BluetoothRepository
 import nick.template.data.BluetoothScanner
+import nick.template.data.BluetoothState
 import javax.inject.Inject
 
 class BluetoothViewModel(
     private val repository: BluetoothRepository
 ) : ViewModel() {
 
-    private val permissionsStates = MutableStateFlow(PermissionsState.RequestPermissions)
-    val states = combine(permissionsStates, repository.scanningResults()) { permissionState, scanResult ->
-        State(
-            permissionsState = permissionState,
-            scanResult = scanResult
-        )
-    }
+    private var canRequestPermissions = false
 
-    fun setPermissionsResult(gotPermissions: Boolean) {
-        permissionsStates.value = if (gotPermissions) {
-            PermissionsState.GotPermissions
-        } else {
-            PermissionsState.DeniedPermissions
-        }
-    }
+    val states = states()
 
-    fun onRequestingPermissions() {
-        permissionsStates.value = PermissionsState.RequestingPermissions
+    private fun states(): Flow<State> {
+        return repository.bluetoothStates()
+            .map { bluetoothState ->
+                BluetoothAvailability(
+                    permissionsState = repository.permissionsState(),
+                    bluetoothState = bluetoothState
+                )
+            }
+            .flatMapLatest { bluetoothAvailability ->
+                when {
+                    bluetoothAvailability.permissionsState is BluetoothPermissions.State.NeedsPermissions -> {
+                        if (canRequestPermissions) {
+                            canRequestPermissions = false
+                            flowOf(State.NeedsPermissions(bluetoothAvailability.permissionsState.permissions))
+                        } else {
+                            canRequestPermissions = true
+                            flowOf(State.DeniedPermissions)
+                        }
+                    }
+                    bluetoothAvailability.bluetoothState != BluetoothState.ON ->
+                        flowOf(State.BluetoothIsntOn)
+                    else -> repository.scanningResults()
+                        .map { result -> State.Scanned(result) as State }
+                        .onStart { emit(State.StartedScanning) }
+                }
+            }
     }
 
     class Factory @Inject constructor(
@@ -52,14 +69,15 @@ class BluetoothViewModel(
     }
 }
 
-data class State(
-    val scanResult: BluetoothScanner.Result,
-    val permissionsState: PermissionsState
-)
-
-enum class PermissionsState {
-    RequestPermissions,
-    RequestingPermissions,
-    GotPermissions,
-    DeniedPermissions
+sealed class State {
+    data class NeedsPermissions(val permissions: List<String>) : State()
+    object BluetoothIsntOn : State()
+    object DeniedPermissions : State()
+    object StartedScanning : State()
+    data class Scanned(val result: BluetoothScanner.Result) : State()
 }
+
+private data class BluetoothAvailability(
+    val permissionsState: BluetoothPermissions.State,
+    val bluetoothState: BluetoothState
+)

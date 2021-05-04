@@ -1,8 +1,9 @@
 package nick.template.data
 
-enum class BluetoothState {
-    TURNING_ON,
-    ON,
-    TURNING_OFF,
-    OFF
+sealed class BluetoothState {
+    data class Unknown(val value: Int) : BluetoothState()
+    object TurningOn : BluetoothState()
+    object On : BluetoothState()
+    object TurningOff : BluetoothState()
+    object Off : BluetoothState()
 }

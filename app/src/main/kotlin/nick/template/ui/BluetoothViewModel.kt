@@ -42,7 +42,7 @@ class BluetoothViewModel(
                             flowOf(State.DeniedPermissions)
                         }
                     }
-                    bluetoothAvailability.bluetoothState != BluetoothState.ON ->
+                    bluetoothAvailability.bluetoothState !is BluetoothState.On ->
                         flowOf(State.BluetoothIsntOn)
                     else -> repository.scanningResults()
                         .map { result -> State.Scanned(result) as State }

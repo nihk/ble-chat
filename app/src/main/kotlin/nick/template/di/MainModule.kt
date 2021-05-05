@@ -14,7 +14,10 @@ import dagger.hilt.android.components.ActivityComponent
 import dagger.multibindings.IntoMap
 import nick.template.R
 import nick.template.ui.AppFragmentFactory
-import nick.template.ui.BluetoothFragment
+import nick.template.ui.ChatFragment
+import nick.template.ui.DefaultOpenChatCallback
+import nick.template.ui.DevicesFragment
+import nick.template.ui.OpenChatCallback
 
 @Module
 @InstallIn(ActivityComponent::class)
@@ -31,9 +34,17 @@ abstract class MainModule {
 
     @Binds
     @IntoMap
-    @FragmentKey(BluetoothFragment::class)
-    abstract fun mainFragment(bluetoothFragment: BluetoothFragment): Fragment
+    @FragmentKey(DevicesFragment::class)
+    abstract fun devicesFragment(devicesFragment: DevicesFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(ChatFragment::class)
+    abstract fun chatFragment(chatFragment: ChatFragment): Fragment
 
     @Binds
     abstract fun fragmentFactory(appFragmentFactory: AppFragmentFactory): FragmentFactory
+
+    @Binds
+    abstract fun openChatCallback(openChatCallback: DefaultOpenChatCallback): OpenChatCallback
 }

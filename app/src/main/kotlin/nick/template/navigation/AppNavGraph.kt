@@ -4,6 +4,7 @@ object AppNavGraph {
     val id = IdGenerator.next()
 
     object Destination {
-        val bluetooth = IdGenerator.next()
+        val devices = IdGenerator.next()
+        val chat = IdGenerator.next()
     }
 }

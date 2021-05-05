@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -16,7 +17,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
 import nick.template.data.BluetoothScanner
-import nick.template.databinding.BluetoothFragmentBinding
+import nick.template.databinding.DevicesFragmentBinding
 import nick.template.ui.adapters.DeviceAdapter
 import javax.inject.Inject
 
@@ -28,9 +29,10 @@ import javax.inject.Inject
 //  Settings.Secure.getInt(context.contentResolver, LOCATION_MODE)
 //  and use Settings.ACTION_LOCATION_SOURCE_SETTINGS or LocationRequestSettings (Play services)
 //  to prompt.
-class BluetoothFragment @Inject constructor(
-    private val vmFactory: BluetoothViewModel.Factory
-) : Fragment(R.layout.bluetooth_fragment) {
+class DevicesFragment @Inject constructor(
+    private val vmFactory: BluetoothViewModel.Factory,
+    private val openChatCallback: OpenChatCallback
+) : Fragment(R.layout.devices_fragment) {
 
     private val viewModel: BluetoothViewModel by viewModels { vmFactory.create(this) }
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
@@ -54,8 +56,8 @@ class BluetoothFragment @Inject constructor(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val binding = BluetoothFragmentBinding.bind(view)
-        val adapter = DeviceAdapter()
+        val binding = DevicesFragmentBinding.bind(view)
+        val adapter = DeviceAdapter(openChatCallback)
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
 
@@ -64,6 +66,8 @@ class BluetoothFragment @Inject constructor(
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
                 Log.d("asdf", state.toString())
+                binding.progressBar.isVisible = state == State.StartedScanning
+
                 when (state) {
                     is State.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
                     // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
@@ -87,7 +91,6 @@ class BluetoothFragment @Inject constructor(
                             viewModel.promptIfNeeded()
                         }
                     }
-                    State.StartedScanning -> {}
                     is State.Scanned -> {
                         when (state.result) {
                             is BluetoothScanner.Result.Error -> {

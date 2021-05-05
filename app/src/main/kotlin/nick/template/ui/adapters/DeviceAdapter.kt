@@ -7,8 +7,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import nick.template.data.Device
 import nick.template.databinding.DeviceItemBinding
+import nick.template.ui.OpenChatCallback
 
-class DeviceAdapter : ListAdapter<Device, DeviceViewHolder>(DeviceDiffCallback) {
+class DeviceAdapter(
+    private val openChatCallback: OpenChatCallback
+) : ListAdapter<Device, DeviceViewHolder>(DeviceDiffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DeviceViewHolder {
         return LayoutInflater.from(parent.context)
             .let { inflater -> DeviceItemBinding.inflate(inflater, parent, false) }
@@ -16,7 +19,7 @@ class DeviceAdapter : ListAdapter<Device, DeviceViewHolder>(DeviceDiffCallback) 
     }
 
     override fun onBindViewHolder(holder: DeviceViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), openChatCallback)
     }
 }
 
@@ -31,8 +34,11 @@ object DeviceDiffCallback : DiffUtil.ItemCallback<Device>() {
 }
 
 class DeviceViewHolder(private val binding: DeviceItemBinding) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(device: Device) {
+    fun bind(device: Device, openChatCallback: OpenChatCallback) {
         binding.name.text = device.name.toString()
         binding.address.text = device.address
+        binding.message.setOnClickListener {
+            openChatCallback.with(device)
+        }
     }
 }

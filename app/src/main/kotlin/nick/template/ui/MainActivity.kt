@@ -23,9 +23,10 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     private fun createNavGraph(navController: NavController) {
         navController.graph = navController.createGraph(
             id = AppNavGraph.id,
-            startDestination = AppNavGraph.Destination.bluetooth
+            startDestination = AppNavGraph.Destination.devices
         ) {
-            fragment<BluetoothFragment>(AppNavGraph.Destination.bluetooth)
+            fragment<DevicesFragment>(AppNavGraph.Destination.devices)
+            fragment<ChatFragment>(AppNavGraph.Destination.chat)
         }
     }
 }

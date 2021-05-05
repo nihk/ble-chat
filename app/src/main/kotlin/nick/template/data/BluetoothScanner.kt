@@ -46,6 +46,7 @@ class AndroidBluetoothScanner @Inject constructor(
 
             override fun onBatchScanResults(results: MutableList<ScanResult>) {
                 val bluetoothDevices = results.map { result -> result.toDevice() }
+                // todo: consider closing the Flow here.
                 offerSafely(BluetoothScanner.Result.Success(bluetoothDevices))
             }
         }

@@ -35,6 +35,9 @@ class BluetoothViewModel(
     //  device and each insertion is done in a transaction that purges devices older than some
     //  value, e.g. 30 seconds.
 
+    // todo: definitely need some sort of in-memory caching mechanism - navigating back and
+    //  forth between chat fragment shouldn't wipe the recyclerview list
+
     // todo: consider subscribing to this in viewModelScope, and having Fragment listen to
     //  a StateFlow. the advantage is that there is an easy cache for Fragment to use, and config
     //  changes don't have to restart this flow - only backgrounding + foregrounding the app.

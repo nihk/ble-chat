@@ -9,6 +9,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import nick.template.data.AndroidBluetoothConnector
 import nick.template.data.AndroidBluetoothPermissions
 import nick.template.data.DefaultBluetoothRepository
 import nick.template.data.AndroidBluetoothScanner
@@ -17,7 +18,8 @@ import nick.template.data.BluetoothPermissions
 import nick.template.data.BluetoothRepository
 import nick.template.data.BluetoothScanner
 import nick.template.data.BluetoothStates
-import nick.template.data.DefaultScanningConfig
+import nick.template.data.BatchedScanningConfig
+import nick.template.data.BluetoothConnector
 import nick.template.data.ScanningConfig
 
 @Module
@@ -50,5 +52,8 @@ abstract class AppModule {
     abstract fun bluetoothPermissions(bluetoothPermissions: AndroidBluetoothPermissions): BluetoothPermissions
 
     @Binds
-    abstract fun scanningConfig(scanningConfig: DefaultScanningConfig): ScanningConfig
+    abstract fun scanningConfig(scanningConfig: BatchedScanningConfig): ScanningConfig
+
+    @Binds
+    abstract fun bluetoothConnector(bluetoothConnector: AndroidBluetoothConnector): BluetoothConnector
 }

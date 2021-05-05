@@ -9,11 +9,11 @@ interface ScanningConfig {
     val scanSettings: ScanSettings
 }
 
-class DefaultScanningConfig @Inject constructor() : ScanningConfig {
+class BatchedScanningConfig @Inject constructor() : ScanningConfig {
     override val filters: List<ScanFilter>? = null
 
     override val scanSettings: ScanSettings = ScanSettings.Builder()
-        .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
-        .setReportDelay(2_500L)
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+        .setReportDelay(400L)
         .build()
 }

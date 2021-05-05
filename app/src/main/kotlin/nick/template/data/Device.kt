@@ -1,6 +1,6 @@
 package nick.template.data
 
-data class BluetoothDevice(
+data class Device(
     val address: String,
     val name: String?
 )

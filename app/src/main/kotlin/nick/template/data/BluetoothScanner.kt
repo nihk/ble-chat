@@ -12,7 +12,7 @@ interface BluetoothScanner {
     fun results(): Flow<Result>
 
     sealed class Result {
-        data class Devices(val bluetoothDevices: List<BluetoothDevice>) : Result()
+        data class Success(val devices: List<Device>) : Result()
         data class Error(val errorCode: Int) : Result()
     }
 }
@@ -33,8 +33,8 @@ class AndroidBluetoothScanner @Inject constructor(
 
         val callback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
-                val bluetoothDevices = listOf(result.toBluetoothDevice())
-                offerSafely(BluetoothScanner.Result.Devices(bluetoothDevices))
+                val bluetoothDevices = listOf(result.toDevice())
+                offerSafely(BluetoothScanner.Result.Success(bluetoothDevices))
             }
 
             override fun onScanFailed(errorCode: Int) {
@@ -42,8 +42,8 @@ class AndroidBluetoothScanner @Inject constructor(
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>) {
-                val bluetoothDevices = results.map { result -> result.toBluetoothDevice() }
-                offerSafely(BluetoothScanner.Result.Devices(bluetoothDevices))
+                val bluetoothDevices = results.map { result -> result.toDevice() }
+                offerSafely(BluetoothScanner.Result.Success(bluetoothDevices))
             }
         }
 
@@ -52,8 +52,8 @@ class AndroidBluetoothScanner @Inject constructor(
         awaitClose { bluetoothLeScanner.stopScan(callback) }
     }
 
-    private fun ScanResult.toBluetoothDevice(): BluetoothDevice {
-        return BluetoothDevice(
+    private fun ScanResult.toDevice(): Device {
+        return Device(
             address = device.address,
             name = device.name
         )

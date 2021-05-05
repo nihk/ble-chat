@@ -29,7 +29,7 @@ class AndroidBluetoothStates @Inject constructor(
                         return
                     }
 
-                    offer(bluetoothAdapter.state.toBluetoothState())
+                    offerSafely(bluetoothAdapter.state.toBluetoothState())
                 }
             }
 

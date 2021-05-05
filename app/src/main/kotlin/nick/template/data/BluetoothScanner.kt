@@ -4,8 +4,10 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 interface BluetoothScanner {
@@ -14,6 +16,7 @@ interface BluetoothScanner {
     sealed class Result {
         data class Success(val devices: List<Device>) : Result()
         data class Error(val errorCode: Int) : Result()
+        object StoppedScanning : Result()
     }
 }
 
@@ -48,6 +51,14 @@ class AndroidBluetoothScanner @Inject constructor(
         }
 
         bluetoothLeScanner.startScan(scanningConfig.filters, scanningConfig.scanSettings, callback)
+
+        scanningConfig.scanDuration?.let { scanDuration ->
+            launch {
+                delay(scanDuration)
+                offerSafely(BluetoothScanner.Result.StoppedScanning)
+                close()
+            }
+        }
 
         awaitClose { bluetoothLeScanner.stopScan(callback) }
     }

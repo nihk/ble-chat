@@ -10,7 +10,7 @@ interface BluetoothRepository {
     fun connect(device: Device): Flow<BluetoothConnector.State>
 }
 
-class DefaultBluetoothRepository @Inject constructor(
+class DelegatingBluetoothRepository @Inject constructor(
     private val bluetoothStates: BluetoothStates,
     private val bluetoothScanner: BluetoothScanner,
     private val bluetoothPermissions: BluetoothPermissions,

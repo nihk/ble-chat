@@ -25,6 +25,14 @@ class BluetoothViewModel(
     private var canRequestPermissions = true
     private val manualTriggers = MutableStateFlow(Any())
 
+    // todo: integrate an SQLite database which stores devices. A timestamp can accompany each
+    //  device and each insertion is done in a transaction that purges devices older than some
+    //  value, e.g. 30 seconds.
+
+    // todo: consider subscribing to this in viewModelScope, and having Fragment listen to
+    //  a StateFlow. the advantage is that there is an easy cache for Fragment to use, and config
+    //  changes don't have to restart this flow - only backgrounding + foregrounding the app.
+    //  it also *might* be easier to integrate Room usage, here.
     fun states(): Flow<State> {
         return manualTriggers
             .flatMapLatest { repository.bluetoothStates() }
@@ -33,10 +41,8 @@ class BluetoothViewModel(
                 when {
                     permissionsState is BluetoothPermissions.State.MissingPermissions -> {
                         if (canRequestPermissions) {
-                            canRequestPermissions = false
                             flowOf(State.RequestPermissions(permissionsState.permissions))
                         } else {
-                            canRequestPermissions = true
                             flowOf(State.DeniedPermissions)
                         }
                     }
@@ -51,7 +57,17 @@ class BluetoothViewModel(
             }
     }
 
-    fun retrigger() {
+    fun userInteractedWithPermissions() {
+        canRequestPermissions = false
+        retriggerFlow()
+    }
+
+    fun userWantsToSeePermissionsPrompt() {
+        canRequestPermissions = true
+        retriggerFlow()
+    }
+
+    private fun retriggerFlow() {
         manualTriggers.value = Any()
     }
 

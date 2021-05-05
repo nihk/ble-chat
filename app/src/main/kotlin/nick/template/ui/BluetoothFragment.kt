@@ -30,7 +30,7 @@ class BluetoothFragment @Inject constructor(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            viewModel.retrigger()
+            viewModel.userInteractedWithPermissions()
         }
     }
 

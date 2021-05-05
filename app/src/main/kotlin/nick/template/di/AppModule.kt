@@ -11,7 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import nick.template.data.AndroidBluetoothConnector
 import nick.template.data.AndroidBluetoothPermissions
-import nick.template.data.DefaultBluetoothRepository
+import nick.template.data.DelegatingBluetoothRepository
 import nick.template.data.AndroidBluetoothScanner
 import nick.template.data.AndroidBluetoothStates
 import nick.template.data.BluetoothPermissions
@@ -40,7 +40,7 @@ abstract class AppModule {
     }
 
     @Binds
-    abstract fun bluetoothRepository(repository: DefaultBluetoothRepository): BluetoothRepository
+    abstract fun bluetoothRepository(repository: DelegatingBluetoothRepository): BluetoothRepository
 
     @Binds
     abstract fun bluetoothStates(bluetoothStates: AndroidBluetoothStates): BluetoothStates

@@ -3,14 +3,16 @@ package nick.template.ui
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import nick.template.data.BluetoothPermissions
 import nick.template.data.BluetoothRepository
 import nick.template.data.BluetoothScanner
@@ -20,16 +22,12 @@ import javax.inject.Inject
 class BluetoothViewModel(
     private val repository: BluetoothRepository
 ) : ViewModel() {
-    private val userPromptStates: MutableStateFlow<UserPromptState> = MutableStateFlow(UserPromptState.Initial)
 
-    enum class UserPromptState {
-        Initial,
-        // Permissions
-        WantsToGrantPermissions,
+    private val userPromptEvents = MutableSharedFlow<UserPromptEvent>()
+
+    private enum class UserPromptEvent {
+        PromptIfNeeded,
         DeniedPermissions,
-        GrantedPermissions,
-        // Bluetooth
-        WantsToTurnBluetoothOn,
         DeniedTurningBluetoothOn
     }
 
@@ -44,7 +42,7 @@ class BluetoothViewModel(
 
     fun states(): Flow<State> {
         return combine(
-            userPromptStates,
+            userPromptEvents.onStart { emit(UserPromptEvent.PromptIfNeeded) },
             repository.bluetoothStates()
         ) { userPromptState, bluetoothState ->
             Pair(userPromptState, bluetoothState)
@@ -56,13 +54,13 @@ class BluetoothViewModel(
                 when {
                     permissionsState is BluetoothPermissions.State.MissingPermissions -> {
                         when (userPromptState) {
-                            UserPromptState.DeniedPermissions -> flowOf(State.DeniedPermissions)
+                            UserPromptEvent.DeniedPermissions -> flowOf(State.DeniedPermissions)
                             else -> flowOf(State.RequestPermissions(permissionsState.permissions))
                         }
                     }
                     bluetoothState !is BluetoothState.On -> {
                         when (userPromptState) {
-                            UserPromptState.DeniedTurningBluetoothOn -> flowOf(State.DeniedEnablingBluetooth)
+                            UserPromptEvent.DeniedTurningBluetoothOn -> flowOf(State.DeniedEnablingBluetooth)
                             else -> flowOf(State.AskToTurnBluetoothOn)
                         }
                     }
@@ -77,23 +75,29 @@ class BluetoothViewModel(
     }
 
     fun userDeniedPermissions() {
-        userPromptStates.value = UserPromptState.DeniedPermissions
+        emit(UserPromptEvent.DeniedPermissions)
     }
 
     fun userGrantedPermissions() {
-        userPromptStates.value = UserPromptState.GrantedPermissions
+        emit(UserPromptEvent.PromptIfNeeded)
     }
 
     fun userWantsToGrantPermissions() {
-        userPromptStates.value = UserPromptState.WantsToGrantPermissions
+        emit(UserPromptEvent.PromptIfNeeded)
     }
 
     fun userDeniedTurningBluetoothOn() {
-        userPromptStates.value = UserPromptState.DeniedTurningBluetoothOn
+        emit(UserPromptEvent.DeniedTurningBluetoothOn)
     }
 
     fun userWantsToTurnBluetoothOn() {
-        userPromptStates.value = UserPromptState.WantsToTurnBluetoothOn
+        emit(UserPromptEvent.PromptIfNeeded)
+    }
+
+    private fun emit(userPromptEvent: UserPromptEvent) {
+        viewModelScope.launch {
+            userPromptEvents.emit(userPromptEvent)
+        }
     }
 
     class Factory @Inject constructor(

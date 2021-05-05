@@ -16,6 +16,9 @@ import nick.template.databinding.BluetoothFragmentBinding
 import javax.inject.Inject
 
 // todo: bluetooth chat interface
+//  check out how other repositories are handling things like:
+//  * storage of historical messages
+//  * connecting to known devices
 // fixme: need to listen to location states, e.g.
 //  Settings.Secure.getInt(context.contentResolver, LOCATION_MODE)
 //  and use Settings.ACTION_LOCATION_SOURCE_SETTINGS or LocationRequestSettings (Play services)
@@ -26,11 +29,17 @@ class BluetoothFragment @Inject constructor(
 
     private val viewModel: BluetoothViewModel by viewModels { vmFactory.create(this) }
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var turnOnBluetoothLauncher: ActivityResultLauncher<Unit>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             viewModel.userInteractedWithPermissions()
+        }
+        turnOnBluetoothLauncher = registerForActivityResult(TurnOnBluetooth()) { didEnable ->
+            if (!didEnable) {
+                viewModel.userDeniedEnablingBluetooth()
+            } // else will get propagated by subscription to bluetooth state changes.
         }
     }
 
@@ -43,9 +52,12 @@ class BluetoothFragment @Inject constructor(
             .onEach { state ->
                 when (state) {
                     is State.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
-                    // todo: prompt using BluetoothAdapter.ACTION_REQUEST_ENABLE so system takes care of this
-                    //  use an ActivityResultContract for this
-                    State.BluetoothIsntOn -> binding.message.text = "BT isn't on -- turn it on!"
+                    // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
+                    State.BluetoothIsntOn -> turnOnBluetoothLauncher.launch(Unit)
+                    State.DeniedEnablingBluetooth -> {
+                        // todo: show a button to enable bluetooth
+                        binding.message.text = "You need BT to use this app"
+                    }
                     State.DeniedPermissions -> {
                         // todo: show a button to enable permissions at system level
                         binding.message.text = "You need BT permissions to continue, bro"

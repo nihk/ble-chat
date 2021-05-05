@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
@@ -38,18 +39,15 @@ class AndroidBluetoothStates @Inject constructor(
             awaitClose { context.unregisterReceiver(broadcastReceiver) }
         }
 
-        return bluetoothStates.onStart { emit(bluetoothAdapter.state.toBluetoothState()) }
+        return bluetoothStates
+            .onStart { emit(bluetoothAdapter.state.toBluetoothState()) }
+            .distinctUntilChanged()
     }
 
     private fun Int.toBluetoothState(): BluetoothState {
         return when (this) {
-            BluetoothAdapter.STATE_OFF -> BluetoothState.Off
-            BluetoothAdapter.STATE_TURNING_OFF -> BluetoothState.TurningOff
-            BluetoothAdapter.STATE_TURNING_ON -> BluetoothState.TurningOn
             BluetoothAdapter.STATE_ON -> BluetoothState.On
-            // BluetoothAdapter can sometimes emit hidden, internal states (lol) on Android M.
-            // See: https://github.com/iDevicesInc/SweetBlue/wiki/Android-BLE-Issues#android-m-issues
-            else -> BluetoothState.Unknown(this)
+            else -> BluetoothState.Other
         }
     }
 }

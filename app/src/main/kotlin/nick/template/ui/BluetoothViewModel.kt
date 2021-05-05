@@ -22,7 +22,9 @@ class BluetoothViewModel(
 
     // If a user denies permissions, they shouldn't immediately afterwards get spammed by another
     // request for those same permissions.
+    // todo: how to more nicely manage this state?
     private var canRequestPermissions = true
+    private var canPromptToEnableBluetooth = true
     private val manualTriggers = MutableStateFlow(Any())
 
     // todo: integrate an SQLite database which stores devices. A timestamp can accompany each
@@ -33,20 +35,23 @@ class BluetoothViewModel(
     //  a StateFlow. the advantage is that there is an easy cache for Fragment to use, and config
     //  changes don't have to restart this flow - only backgrounding + foregrounding the app.
     //  it also *might* be easier to integrate Room usage, here.
+
     fun states(): Flow<State> {
         return manualTriggers
             .flatMapLatest { repository.bluetoothStates() }
             .flatMapLatest { bluetoothState ->
                 val permissionsState = repository.permissionsState()
                 when {
-                    permissionsState is BluetoothPermissions.State.MissingPermissions -> {
-                        if (canRequestPermissions) {
-                            flowOf(State.RequestPermissions(permissionsState.permissions))
-                        } else {
-                            flowOf(State.DeniedPermissions)
-                        }
+                    permissionsState is BluetoothPermissions.State.MissingPermissions -> if (canRequestPermissions) {
+                        flowOf(State.RequestPermissions(permissionsState.permissions))
+                    } else {
+                        flowOf(State.DeniedPermissions)
                     }
-                    bluetoothState !is BluetoothState.On -> flowOf(State.BluetoothIsntOn)
+                    bluetoothState !is BluetoothState.On -> if (canPromptToEnableBluetooth) {
+                        flowOf(State.BluetoothIsntOn)
+                    } else {
+                        flowOf(State.DeniedEnablingBluetooth)
+                    }
                     else -> repository.scanningResults()
                         .map { result ->
                             @Suppress("USELESS_CAST")
@@ -64,6 +69,16 @@ class BluetoothViewModel(
 
     fun userWantsToSeePermissionsPrompt() {
         canRequestPermissions = true
+        retriggerFlow()
+    }
+
+    fun userDeniedEnablingBluetooth() {
+        canPromptToEnableBluetooth = false
+        retriggerFlow()
+    }
+
+    fun userWantsToSeeEnableBluetoothPrompt() {
+        canPromptToEnableBluetooth = true
         retriggerFlow()
     }
 
@@ -92,6 +107,7 @@ class BluetoothViewModel(
 sealed class State {
     data class RequestPermissions(val permissions: List<String>) : State()
     object BluetoothIsntOn : State()
+    object DeniedEnablingBluetooth : State()
     object DeniedPermissions : State()
     object StartedScanning : State()
     data class Scanned(val result: BluetoothScanner.Result) : State()

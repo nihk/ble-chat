@@ -10,10 +10,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
+import nick.template.data.BluetoothScanner
 import nick.template.databinding.BluetoothFragmentBinding
+import nick.template.ui.adapters.DeviceAdapter
 import javax.inject.Inject
 
 // todo: bluetooth chat interface
@@ -37,7 +41,7 @@ class BluetoothFragment @Inject constructor(
         requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val grantedAll = permissions.isNotEmpty() && permissions.all { it.value }
             if (grantedAll) {
-                viewModel.userGrantedPermissions()
+                viewModel.promptIfNeeded()
             } else {
                 viewModel.userDeniedPermissions()
             }
@@ -51,6 +55,9 @@ class BluetoothFragment @Inject constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = BluetoothFragmentBinding.bind(view)
+        val adapter = DeviceAdapter()
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
+        binding.recyclerView.adapter = adapter
 
         viewModel.states()
             // Battery efficiency - don't listen to Bluetooth while in background
@@ -61,19 +68,59 @@ class BluetoothFragment @Inject constructor(
                     is State.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
                     // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
                     State.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
-                    State.DeniedEnablingBluetooth -> {
-                        // todo: show a button to enable bluetooth
-                        binding.message.text = "You need BT to use this app"
+                    State.DeniedTurningOnBluetooth -> {
+                        showSnackbar(
+                            view = view,
+                            message = "You need BT to use this app",
+                            buttonText = "Turn on"
+                        ) {
+                            viewModel.promptIfNeeded()
+                        }
                     }
                     State.DeniedPermissions -> {
-                        // todo: show a button to enable permissions at system level
-                        binding.message.text = "You need BT permissions to continue, bro"
+                        // todo: show a button to enable permissions at system level?
+                        showSnackbar(
+                            view = view,
+                            message = "You need BT permissions to continue, bro",
+                            buttonText = "Grant"
+                        ) {
+                            viewModel.promptIfNeeded()
+                        }
                     }
-                    State.StartedScanning -> binding.message.text = "Started scanning..."
-                    // todo: if result was an errorCode, restart. These are not recoverable.
-                    is State.Scanned -> binding.message.text = "Scanned: ${state.result}"
+                    State.StartedScanning -> {}
+                    is State.Scanned -> {
+                        when (state.result) {
+                            is BluetoothScanner.Result.Error -> {
+                                showSnackbar(
+                                    view = view,
+                                    message = "Error: ${state.result.errorCode}",
+                                    buttonText = "Retry"
+                                ) {
+                                    // These are not recoverable.
+                                    viewModel.promptIfNeeded()
+                                }
+                            }
+                            BluetoothScanner.Result.StoppedScanning -> {}
+                            is BluetoothScanner.Result.Success -> {
+                                if (state.result.devices.isNotEmpty()) {
+                                    adapter.submitList(state.result.devices)
+                                }
+                            }
+                        }
+                    }
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun showSnackbar(
+        view: View,
+        message: String,
+        buttonText: String? = null,
+        action: (View) -> Unit = {}
+    ) {
+        Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
+            .setAction(buttonText, action)
+            .show()
     }
 }

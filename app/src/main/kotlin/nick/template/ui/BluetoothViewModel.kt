@@ -28,7 +28,7 @@ class BluetoothViewModel(
     private enum class UserPromptEvent {
         PromptIfNeeded,
         DeniedPermissions,
-        DeniedTurningBluetoothOn
+        DeniedTurningOnBluetooth
     }
 
     // todo: integrate an SQLite database which stores devices. A timestamp can accompany each
@@ -60,7 +60,7 @@ class BluetoothViewModel(
                     }
                     bluetoothState !is BluetoothState.On -> {
                         when (userPromptState) {
-                            UserPromptEvent.DeniedTurningBluetoothOn -> flowOf(State.DeniedEnablingBluetooth)
+                            UserPromptEvent.DeniedTurningOnBluetooth -> flowOf(State.DeniedTurningOnBluetooth)
                             else -> flowOf(State.AskToTurnBluetoothOn)
                         }
                     }
@@ -74,24 +74,16 @@ class BluetoothViewModel(
             }
     }
 
+    fun promptIfNeeded() {
+        emit(UserPromptEvent.PromptIfNeeded)
+    }
+
     fun userDeniedPermissions() {
         emit(UserPromptEvent.DeniedPermissions)
     }
 
-    fun userGrantedPermissions() {
-        emit(UserPromptEvent.PromptIfNeeded)
-    }
-
-    fun userWantsToGrantPermissions() {
-        emit(UserPromptEvent.PromptIfNeeded)
-    }
-
     fun userDeniedTurningBluetoothOn() {
-        emit(UserPromptEvent.DeniedTurningBluetoothOn)
-    }
-
-    fun userWantsToTurnBluetoothOn() {
-        emit(UserPromptEvent.PromptIfNeeded)
+        emit(UserPromptEvent.DeniedTurningOnBluetooth)
     }
 
     private fun emit(userPromptEvent: UserPromptEvent) {
@@ -120,9 +112,9 @@ class BluetoothViewModel(
 
 sealed class State {
     data class RequestPermissions(val permissions: List<String>) : State()
-    object AskToTurnBluetoothOn : State()
-    object DeniedEnablingBluetooth : State()
     object DeniedPermissions : State()
+    object AskToTurnBluetoothOn : State()
+    object DeniedTurningOnBluetooth : State()
     object StartedScanning : State()
     data class Scanned(val result: BluetoothScanner.Result) : State()
 }

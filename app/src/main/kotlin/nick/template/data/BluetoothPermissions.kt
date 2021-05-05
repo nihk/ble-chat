@@ -21,21 +21,21 @@ class AndroidBluetoothPermissions @Inject constructor(
 ) : BluetoothPermissions {
 
     override fun state(): BluetoothPermissions.State {
-        val hasPermissions = requiredPermissions().all { permission ->
+        val hasPermissions = REQUIRED_PERMISSIONS.all { permission ->
             ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
         }
 
         return if (hasPermissions) {
             BluetoothPermissions.State.HasPermissions
         } else {
-            BluetoothPermissions.State.MissingPermissions(requiredPermissions())
+            BluetoothPermissions.State.MissingPermissions(REQUIRED_PERMISSIONS)
         }
     }
 
-    private fun requiredPermissions(): List<String> {
-        return mutableListOf<String>().apply {
-            // fixme: wrap in < Android.O check
-            add(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
+    companion object {
+        private val REQUIRED_PERMISSIONS = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
     }
 }

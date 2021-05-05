@@ -1,6 +1,7 @@
 package nick.template.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,13 +34,18 @@ class BluetoothFragment @Inject constructor(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            viewModel.userInteractedWithPermissions()
+        requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val grantedAll = permissions.isNotEmpty() && permissions.all { it.value }
+            if (grantedAll) {
+                viewModel.userGrantedPermissions()
+            } else {
+                viewModel.userDeniedPermissions()
+            }
         }
-        turnOnBluetoothLauncher = registerForActivityResult(TurnOnBluetooth()) { didEnable ->
-            if (!didEnable) {
-                viewModel.userDeniedEnablingBluetooth()
-            } // else will get propagated by subscription to bluetooth state changes.
+        turnOnBluetoothLauncher = registerForActivityResult(TurnOnBluetooth()) { didTurnOn ->
+            if (!didTurnOn) {
+                viewModel.userDeniedTurningBluetoothOn()
+            } // else BluetoothStates will emit an On event, retriggering the ViewModel flow.
         }
     }
 
@@ -50,10 +56,11 @@ class BluetoothFragment @Inject constructor(
             // Battery efficiency - don't listen to Bluetooth while in background
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
+                Log.d("asdf", state.toString())
                 when (state) {
                     is State.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
                     // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
-                    State.BluetoothIsntOn -> turnOnBluetoothLauncher.launch(Unit)
+                    State.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
                     State.DeniedEnablingBluetooth -> {
                         // todo: show a button to enable bluetooth
                         binding.message.text = "You need BT to use this app"

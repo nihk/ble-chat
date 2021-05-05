@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -19,13 +20,18 @@ import javax.inject.Inject
 class BluetoothViewModel(
     private val repository: BluetoothRepository
 ) : ViewModel() {
+    private val userPromptStates: MutableStateFlow<UserPromptState> = MutableStateFlow(UserPromptState.Initial)
 
-    // If a user denies permissions, they shouldn't immediately afterwards get spammed by another
-    // request for those same permissions.
-    // todo: how to more nicely manage this state?
-    private var canRequestPermissions = true
-    private var canPromptToEnableBluetooth = true
-    private val manualTriggers = MutableStateFlow(Any())
+    enum class UserPromptState {
+        Initial,
+        // Permissions
+        WantsToGrantPermissions,
+        DeniedPermissions,
+        GrantedPermissions,
+        // Bluetooth
+        WantsToTurnBluetoothOn,
+        DeniedTurningBluetoothOn
+    }
 
     // todo: integrate an SQLite database which stores devices. A timestamp can accompany each
     //  device and each insertion is done in a transaction that purges devices older than some
@@ -37,20 +43,28 @@ class BluetoothViewModel(
     //  it also *might* be easier to integrate Room usage, here.
 
     fun states(): Flow<State> {
-        return manualTriggers
-            .flatMapLatest { repository.bluetoothStates() }
-            .flatMapLatest { bluetoothState ->
+        return combine(
+            userPromptStates,
+            repository.bluetoothStates()
+        ) { userPromptState, bluetoothState ->
+            Pair(userPromptState, bluetoothState)
+        }
+            .flatMapLatest { pair ->
+                val userPromptState = pair.first
+                val bluetoothState = pair.second
                 val permissionsState = repository.permissionsState()
                 when {
-                    permissionsState is BluetoothPermissions.State.MissingPermissions -> if (canRequestPermissions) {
-                        flowOf(State.RequestPermissions(permissionsState.permissions))
-                    } else {
-                        flowOf(State.DeniedPermissions)
+                    permissionsState is BluetoothPermissions.State.MissingPermissions -> {
+                        when (userPromptState) {
+                            UserPromptState.DeniedPermissions -> flowOf(State.DeniedPermissions)
+                            else -> flowOf(State.RequestPermissions(permissionsState.permissions))
+                        }
                     }
-                    bluetoothState !is BluetoothState.On -> if (canPromptToEnableBluetooth) {
-                        flowOf(State.BluetoothIsntOn)
-                    } else {
-                        flowOf(State.DeniedEnablingBluetooth)
+                    bluetoothState !is BluetoothState.On -> {
+                        when (userPromptState) {
+                            UserPromptState.DeniedTurningBluetoothOn -> flowOf(State.DeniedEnablingBluetooth)
+                            else -> flowOf(State.AskToTurnBluetoothOn)
+                        }
                     }
                     else -> repository.scanningResults()
                         .map { result ->
@@ -62,28 +76,24 @@ class BluetoothViewModel(
             }
     }
 
-    fun userInteractedWithPermissions() {
-        canRequestPermissions = false
-        retriggerFlow()
+    fun userDeniedPermissions() {
+        userPromptStates.value = UserPromptState.DeniedPermissions
     }
 
-    fun userWantsToSeePermissionsPrompt() {
-        canRequestPermissions = true
-        retriggerFlow()
+    fun userGrantedPermissions() {
+        userPromptStates.value = UserPromptState.GrantedPermissions
     }
 
-    fun userDeniedEnablingBluetooth() {
-        canPromptToEnableBluetooth = false
-        retriggerFlow()
+    fun userWantsToGrantPermissions() {
+        userPromptStates.value = UserPromptState.WantsToGrantPermissions
     }
 
-    fun userWantsToSeeEnableBluetoothPrompt() {
-        canPromptToEnableBluetooth = true
-        retriggerFlow()
+    fun userDeniedTurningBluetoothOn() {
+        userPromptStates.value = UserPromptState.DeniedTurningBluetoothOn
     }
 
-    private fun retriggerFlow() {
-        manualTriggers.value = Any()
+    fun userWantsToTurnBluetoothOn() {
+        userPromptStates.value = UserPromptState.WantsToTurnBluetoothOn
     }
 
     class Factory @Inject constructor(
@@ -106,7 +116,7 @@ class BluetoothViewModel(
 
 sealed class State {
     data class RequestPermissions(val permissions: List<String>) : State()
-    object BluetoothIsntOn : State()
+    object AskToTurnBluetoothOn : State()
     object DeniedEnablingBluetooth : State()
     object DeniedPermissions : State()
     object StartedScanning : State()

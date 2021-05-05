@@ -12,7 +12,7 @@ interface BluetoothScanner {
     fun results(): Flow<Result>
 
     sealed class Result {
-        data class Devices(val addresses: List<String>) : Result()
+        data class Devices(val bluetoothDevices: List<BluetoothDevice>) : Result()
         data class Error(val errorCode: Int) : Result()
     }
 }
@@ -30,10 +30,11 @@ class AndroidBluetoothScanner @Inject constructor(
         val bluetoothLeScanner = requireNotNull(bluetoothAdapter.bluetoothLeScanner) {
             "Either BT wasn't turned on or relevant permissions weren't actively granted!"
         }
+
         val callback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult) {
-                val addresses = listOf(result.device.address)
-                offerSafely(BluetoothScanner.Result.Devices(addresses))
+                val bluetoothDevices = listOf(result.toBluetoothDevice())
+                offerSafely(BluetoothScanner.Result.Devices(bluetoothDevices))
             }
 
             override fun onScanFailed(errorCode: Int) {
@@ -41,13 +42,20 @@ class AndroidBluetoothScanner @Inject constructor(
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>) {
-                val addresses = results.map { result -> result.device.address }
-                offerSafely(BluetoothScanner.Result.Devices(addresses))
+                val bluetoothDevices = results.map { result -> result.toBluetoothDevice() }
+                offerSafely(BluetoothScanner.Result.Devices(bluetoothDevices))
             }
         }
 
         bluetoothLeScanner.startScan(scanningConfig.filters, scanningConfig.scanSettings, callback)
 
         awaitClose { bluetoothLeScanner.stopScan(callback) }
+    }
+
+    private fun ScanResult.toBluetoothDevice(): BluetoothDevice {
+        return BluetoothDevice(
+            address = device.address,
+            name = device.name
+        )
     }
 }

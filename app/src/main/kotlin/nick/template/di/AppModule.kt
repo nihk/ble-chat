@@ -32,6 +32,7 @@ abstract class AppModule {
 
         @Provides
         fun bluetoothAdapter(bluetoothManager: BluetoothManager): BluetoothAdapter {
+            // fixme: use BluetoothAdapter.getDefaultAdapter() instead?
             return bluetoothManager.adapter
         }
     }

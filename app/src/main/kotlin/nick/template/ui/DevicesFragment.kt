@@ -98,8 +98,10 @@ class DevicesFragment @Inject constructor(
 
         viewModel.devices()
             .onEach { resource ->
-                binding.progressBar.isVisible = resource is DevicesResource.Loading
-                    && adapter.currentList.isEmpty()
+                binding.topProgressBar.isVisible = resource is DevicesResource.Loading
+                    && !resource.devices.isNullOrEmpty()
+                binding.centerProgressBar.isVisible = resource is DevicesResource.Loading
+                    && resource.devices.isNullOrEmpty()
 
                 if (!resource.devices.isNullOrEmpty()) {
                     adapter.submitList(resource.devices)

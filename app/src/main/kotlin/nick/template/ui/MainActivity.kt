@@ -2,6 +2,7 @@ package nick.template.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavActionBuilder
 import androidx.navigation.NavController
 import androidx.navigation.createGraph
 import androidx.navigation.fragment.fragment
@@ -23,10 +24,26 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     private fun createNavGraph(navController: NavController) {
         navController.graph = navController.createGraph(
             id = AppNavGraph.id,
-            startDestination = AppNavGraph.Destination.devices
+            startDestination = AppNavGraph.Destinations.devices
         ) {
-            fragment<DevicesFragment>(AppNavGraph.Destination.devices)
-            fragment<ChatFragment>(AppNavGraph.Destination.chat)
+            fragment<DevicesFragment>(AppNavGraph.Destinations.devices) {
+                action(AppNavGraph.Actions.toChat) {
+                    destinationId = AppNavGraph.Destinations.chat
+                    defaultAnimations()
+                }
+            }
+            fragment<ChatFragment>(AppNavGraph.Destinations.chat)
+        }
+    }
+
+    private fun NavActionBuilder.defaultAnimations() {
+        navOptions {
+            anim {
+                enter = R.animator.nav_default_enter_anim
+                exit = R.animator.nav_default_exit_anim
+                popEnter = R.animator.nav_default_pop_enter_anim
+                popExit = R.animator.nav_default_pop_exit_anim
+            }
         }
     }
 }

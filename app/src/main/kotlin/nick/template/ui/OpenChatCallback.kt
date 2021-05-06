@@ -13,6 +13,6 @@ class DefaultOpenChatCallback @Inject constructor(
     private val navController: NavController
 ) : OpenChatCallback {
     override fun with(device: Device) {
-        navController.navigate(AppNavGraph.Destination.chat)
+        navController.navigate(AppNavGraph.Actions.toChat, ChatFragment.bundle(device.address))
     }
 }

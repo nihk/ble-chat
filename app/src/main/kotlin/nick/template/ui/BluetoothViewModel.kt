@@ -39,6 +39,7 @@ class BluetoothViewModel(
     private val devices = MutableStateFlow<DevicesResource?>(null)
     fun devices(): Flow<DevicesResource> = devices.filterNotNull()
 
+    // todo: move this to its own, reusable class (so chat fragment can also use)
     fun events(): Flow<Event> {
         return combine(
             actions.onStart { emit(Action.PromptIfNeeded) },

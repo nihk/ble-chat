@@ -72,7 +72,7 @@ class DevicesFragment @Inject constructor(
                     is Event.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
                     // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
                     Event.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
-                    Event.DeniedTurningOnBluetooth -> {
+                    Event.InformBluetoothRequired -> {
                         showSnackbar(
                             view = view,
                             message = "You need BT to use this app",
@@ -81,8 +81,8 @@ class DevicesFragment @Inject constructor(
                             viewModel.promptIfNeeded()
                         }
                     }
-                    Event.DeniedPermissions -> {
-                        // todo: show a button to enable permissions at system level?
+                    Event.InformPermissionsRequired -> {
+                        // todo: deep link to settings permissions?
                         showSnackbar(
                             view = view,
                             message = "You need BT permissions to continue, bro",

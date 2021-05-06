@@ -54,13 +54,13 @@ class BluetoothViewModel(
                 when {
                     permissionsState is BluetoothPermissions.State.MissingPermissions -> {
                         when (userAction) {
-                            Action.DenyPermissions -> Event.DeniedPermissions
+                            Action.DenyPermissions -> Event.InformPermissionsRequired
                             else -> Event.RequestPermissions(permissionsState.permissions)
                         }
                     }
                     bluetoothState !is BluetoothState.On -> {
                         when (userAction) {
-                            Action.DenyTurningOnBluetooth -> Event.DeniedTurningOnBluetooth
+                            Action.DenyTurningOnBluetooth -> Event.InformBluetoothRequired
                             else -> Event.AskToTurnBluetoothOn
                         }
                     }
@@ -115,7 +115,7 @@ class BluetoothViewModel(
 sealed class Event {
     object CanUseBluetooth : Event()
     data class RequestPermissions(val permissions: List<String>) : Event()
-    object DeniedPermissions : Event()
+    object InformPermissionsRequired : Event()
     object AskToTurnBluetoothOn : Event()
-    object DeniedTurningOnBluetooth : Event()
+    object InformBluetoothRequired : Event()
 }

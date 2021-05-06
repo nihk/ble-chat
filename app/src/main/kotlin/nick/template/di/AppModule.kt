@@ -22,7 +22,7 @@ import nick.template.data.bluetooth.BluetoothPermissions
 import nick.template.data.bluetooth.BluetoothRepository
 import nick.template.data.bluetooth.BluetoothScanner
 import nick.template.data.bluetooth.BluetoothStates
-import nick.template.data.bluetooth.DelegatingBluetoothRepository
+import nick.template.data.bluetooth.DefaultBluetoothRepository
 import nick.template.data.bluetooth.ScanningConfig
 import nick.template.data.local.AppDatabase
 import nick.template.data.local.DeviceDao
@@ -59,7 +59,7 @@ abstract class AppModule {
     }
 
     @Binds
-    abstract fun bluetoothRepository(repository: DelegatingBluetoothRepository): BluetoothRepository
+    abstract fun bluetoothRepository(repository: DefaultBluetoothRepository): BluetoothRepository
 
     @Binds
     abstract fun bluetoothStates(bluetoothStates: AndroidBluetoothStates): BluetoothStates

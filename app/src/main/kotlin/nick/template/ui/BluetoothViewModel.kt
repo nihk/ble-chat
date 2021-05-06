@@ -5,97 +5,91 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import nick.template.data.bluetooth.BluetoothPermissions
 import nick.template.data.bluetooth.BluetoothRepository
-import nick.template.data.bluetooth.BluetoothScanner
 import nick.template.data.bluetooth.BluetoothState
+import nick.template.data.bluetooth.DevicesResource
 import javax.inject.Inject
 
 class BluetoothViewModel(
     private val repository: BluetoothRepository
 ) : ViewModel() {
 
-    private val userPromptEvents = MutableSharedFlow<UserPromptEvent>()
+    private val actions = MutableSharedFlow<Action>()
 
-    private enum class UserPromptEvent {
+    private enum class Action {
         PromptIfNeeded,
-        DeniedPermissions,
-        DeniedTurningOnBluetooth
+        DenyPermissions,
+        DenyTurningOnBluetooth
     }
 
-    // todo: integrate an SQLite database which stores devices. A timestamp can accompany each
-    //  device and each insertion is done in a transaction that purges devices older than some
-    //  value, e.g. 30 seconds.
+    private var scanning: Job? = null
 
-    // todo: definitely need some sort of in-memory caching mechanism - navigating back and
-    //  forth between chat fragment shouldn't wipe the recyclerview list
+    private val devices = MutableStateFlow<DevicesResource?>(null)
+    fun devices(): Flow<DevicesResource> = devices.filterNotNull()
 
-    // todo: consider subscribing to this in viewModelScope, and having Fragment listen to
-    //  a StateFlow. the advantage is that there is an easy cache for Fragment to use, and config
-    //  changes don't have to restart this flow - only backgrounding + foregrounding the app.
-    //  it also *might* be easier to integrate Room usage, here.
-
-    // todo: maybe decouple the scan results from these prompt events? especially now that
-    //  scanning will only be a few seconds worth and should continue across config changes
-    // todo: rename to bluetoothUsability
-    fun states(): Flow<State> {
+    fun events(): Flow<Event> {
         return combine(
-            userPromptEvents.onStart { emit(UserPromptEvent.PromptIfNeeded) },
+            actions.onStart { emit(Action.PromptIfNeeded) },
             repository.bluetoothStates()
         ) { userPromptState, bluetoothState ->
             Pair(userPromptState, bluetoothState)
         }
-            .flatMapLatest { pair ->
-                val userPromptState = pair.first
+            .map { pair ->
+                val userAction = pair.first
                 val bluetoothState = pair.second
                 val permissionsState = repository.permissionsState()
                 when {
                     permissionsState is BluetoothPermissions.State.MissingPermissions -> {
-                        when (userPromptState) {
-                            UserPromptEvent.DeniedPermissions -> flowOf(State.DeniedPermissions)
-                            else -> flowOf(State.RequestPermissions(permissionsState.permissions))
+                        when (userAction) {
+                            Action.DenyPermissions -> Event.DeniedPermissions
+                            else -> Event.RequestPermissions(permissionsState.permissions)
                         }
                     }
                     bluetoothState !is BluetoothState.On -> {
-                        when (userPromptState) {
-                            UserPromptEvent.DeniedTurningOnBluetooth -> flowOf(State.DeniedTurningOnBluetooth)
-                            else -> flowOf(State.AskToTurnBluetoothOn)
+                        when (userAction) {
+                            Action.DenyTurningOnBluetooth -> Event.DeniedTurningOnBluetooth
+                            else -> Event.AskToTurnBluetoothOn
                         }
                     }
-                    // todo: else -> flowOf(State.CanUseBluetooth)
-                    else -> repository.scanningResults()
-                        .map { result ->
-                            @Suppress("USELESS_CAST")
-                            State.Scanned(result) as State
-                        }
-                        .onStart { emit(State.StartedScanning) }
+                    else -> Event.CanUseBluetooth
                 }
             }
     }
 
+    fun scanForDevices() {
+        scanning?.cancel()
+        scanning = repository.devices()
+            .onEach { devices.value = it }
+            .launchIn(viewModelScope)
+    }
+
     fun promptIfNeeded() {
-        emit(UserPromptEvent.PromptIfNeeded)
+        emit(Action.PromptIfNeeded)
     }
 
-    fun userDeniedPermissions() {
-        emit(UserPromptEvent.DeniedPermissions)
+    fun denyPermissions() {
+        emit(Action.DenyPermissions)
     }
 
-    fun userDeniedTurningBluetoothOn() {
-        emit(UserPromptEvent.DeniedTurningOnBluetooth)
+    fun denyTurningBluetoothOn() {
+        emit(Action.DenyTurningOnBluetooth)
     }
 
-    private fun emit(userPromptEvent: UserPromptEvent) {
+    private fun emit(action: Action) {
         viewModelScope.launch {
-            userPromptEvents.emit(userPromptEvent)
+            actions.emit(action)
         }
     }
 
@@ -117,11 +111,10 @@ class BluetoothViewModel(
     }
 }
 
-sealed class State {
-    data class RequestPermissions(val permissions: List<String>) : State()
-    object DeniedPermissions : State()
-    object AskToTurnBluetoothOn : State()
-    object DeniedTurningOnBluetooth : State()
-    object StartedScanning : State()
-    data class Scanned(val result: BluetoothScanner.Result) : State()
+sealed class Event {
+    object CanUseBluetooth : Event()
+    data class RequestPermissions(val permissions: List<String>) : Event()
+    object DeniedPermissions : Event()
+    object AskToTurnBluetoothOn : Event()
+    object DeniedTurningOnBluetooth : Event()
 }

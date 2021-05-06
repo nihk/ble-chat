@@ -16,7 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
-import nick.template.data.bluetooth.BluetoothScanner
+import nick.template.data.bluetooth.DevicesResource
 import nick.template.databinding.DevicesFragmentBinding
 import nick.template.ui.adapters.DeviceAdapter
 import javax.inject.Inject
@@ -29,6 +29,7 @@ import javax.inject.Inject
 //  Settings.Secure.getInt(context.contentResolver, LOCATION_MODE)
 //  and use Settings.ACTION_LOCATION_SOURCE_SETTINGS or LocationRequestSettings (Play services)
 //  to prompt.
+// todo: add refresh menu button
 class DevicesFragment @Inject constructor(
     private val vmFactory: BluetoothViewModel.Factory,
     private val openChatCallback: OpenChatCallback
@@ -45,13 +46,13 @@ class DevicesFragment @Inject constructor(
             if (grantedAll) {
                 viewModel.promptIfNeeded()
             } else {
-                viewModel.userDeniedPermissions()
+                viewModel.denyPermissions()
             }
         }
         turnOnBluetoothLauncher = registerForActivityResult(TurnOnBluetooth()) { didTurnOn ->
             if (!didTurnOn) {
-                viewModel.userDeniedTurningBluetoothOn()
-            } // else BluetoothStates will emit an On event, retriggering the ViewModel flow.
+                viewModel.denyTurningBluetoothOn()
+            } // else BluetoothStates will emit an On event, retriggering the ViewModel flow automatically.
         }
     }
 
@@ -61,18 +62,17 @@ class DevicesFragment @Inject constructor(
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
 
-        viewModel.states()
+        viewModel.events()
             // Battery efficiency - don't listen to Bluetooth while in background
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
                 Log.d("asdf", state.toString())
-                binding.progressBar.isVisible = state == State.StartedScanning
 
                 when (state) {
-                    is State.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
+                    is Event.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
                     // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
-                    State.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
-                    State.DeniedTurningOnBluetooth -> {
+                    Event.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
+                    Event.DeniedTurningOnBluetooth -> {
                         showSnackbar(
                             view = view,
                             message = "You need BT to use this app",
@@ -81,7 +81,7 @@ class DevicesFragment @Inject constructor(
                             viewModel.promptIfNeeded()
                         }
                     }
-                    State.DeniedPermissions -> {
+                    Event.DeniedPermissions -> {
                         // todo: show a button to enable permissions at system level?
                         showSnackbar(
                             view = view,
@@ -91,25 +91,28 @@ class DevicesFragment @Inject constructor(
                             viewModel.promptIfNeeded()
                         }
                     }
-                    is State.Scanned -> {
-                        when (state.result) {
-                            is BluetoothScanner.Result.Error -> {
-                                showSnackbar(
-                                    view = view,
-                                    message = "Error: ${state.result.errorCode}",
-                                    buttonText = "Retry"
-                                ) {
-                                    // These are not recoverable.
-                                    viewModel.promptIfNeeded()
-                                }
-                            }
-                            BluetoothScanner.Result.StoppedScanning -> {}
-                            is BluetoothScanner.Result.Success -> {
-                                if (state.result.devices.isNotEmpty()) {
-                                    adapter.submitList(state.result.devices)
-                                }
-                            }
-                        }
+                    is Event.CanUseBluetooth -> viewModel.scanForDevices()
+                }
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+
+        viewModel.devices()
+            .onEach { resource ->
+                binding.progressBar.isVisible = resource is DevicesResource.Loading
+                    && adapter.currentList.isEmpty()
+
+                if (!resource.devices.isNullOrEmpty()) {
+                    adapter.submitList(resource.devices)
+                }
+
+                if (resource is DevicesResource.Error) {
+                    showSnackbar(
+                        view = view,
+                        message = "Error: ${resource.errorCode}",
+                        buttonText = "Retry"
+                    ) {
+                        // These are not recoverable.
+                        viewModel.promptIfNeeded()
                     }
                 }
             }

@@ -7,7 +7,5 @@ interface CurrentTime {
 }
 
 class SystemCurrentTime @Inject constructor() : CurrentTime {
-    override fun millis(): Long {
-        return System.currentTimeMillis()
-    }
+    override fun millis(): Long = System.currentTimeMillis()
 }

@@ -1,4 +1,4 @@
-package nick.template.data
+package nick.template.data.bluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
@@ -8,6 +8,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import nick.template.data.CurrentTime
+import nick.template.data.local.Device
+import nick.template.data.offerSafely
 import javax.inject.Inject
 
 interface BluetoothScanner {
@@ -26,7 +29,8 @@ interface BluetoothScanner {
 // stopping it). TODO: Reconcile this, too.
 class AndroidBluetoothScanner @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
-    private val scanningConfig: ScanningConfig
+    private val scanningConfig: ScanningConfig,
+    private val currentTime: CurrentTime
 ) : BluetoothScanner {
 
     override fun results(): Flow<BluetoothScanner.Result> = callbackFlow {
@@ -67,7 +71,8 @@ class AndroidBluetoothScanner @Inject constructor(
     private fun ScanResult.toDevice(): Device {
         return Device(
             address = device.address,
-            name = device.name
+            name = device.name,
+            lastSeen = currentTime.millis()
         )
     }
 }

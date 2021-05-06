@@ -16,7 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
-import nick.template.data.BluetoothScanner
+import nick.template.data.bluetooth.BluetoothScanner
 import nick.template.databinding.DevicesFragmentBinding
 import nick.template.ui.adapters.DeviceAdapter
 import javax.inject.Inject

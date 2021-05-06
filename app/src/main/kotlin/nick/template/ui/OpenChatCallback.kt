@@ -1,7 +1,7 @@
 package nick.template.ui
 
 import androidx.navigation.NavController
-import nick.template.data.Device
+import nick.template.data.local.Device
 import nick.template.navigation.AppNavGraph
 import javax.inject.Inject
 

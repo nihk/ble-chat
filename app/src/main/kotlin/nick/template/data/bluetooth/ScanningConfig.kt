@@ -1,4 +1,4 @@
-package nick.template.data
+package nick.template.data.bluetooth
 
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanSettings

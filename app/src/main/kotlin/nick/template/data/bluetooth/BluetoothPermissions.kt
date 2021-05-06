@@ -1,4 +1,4 @@
-package nick.template.data
+package nick.template.data.bluetooth
 
 import android.Manifest
 import android.content.Context

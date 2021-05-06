@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import nick.template.data.BluetoothPermissions
-import nick.template.data.BluetoothRepository
-import nick.template.data.BluetoothScanner
-import nick.template.data.BluetoothState
+import nick.template.data.bluetooth.BluetoothPermissions
+import nick.template.data.bluetooth.BluetoothRepository
+import nick.template.data.bluetooth.BluetoothScanner
+import nick.template.data.bluetooth.BluetoothState
 import javax.inject.Inject
 
 class BluetoothViewModel(
@@ -43,6 +43,9 @@ class BluetoothViewModel(
     //  changes don't have to restart this flow - only backgrounding + foregrounding the app.
     //  it also *might* be easier to integrate Room usage, here.
 
+    // todo: maybe decouple the scan results from these prompt events? especially now that
+    //  scanning will only be a few seconds worth and should continue across config changes
+    // todo: rename to bluetoothUsability
     fun states(): Flow<State> {
         return combine(
             userPromptEvents.onStart { emit(UserPromptEvent.PromptIfNeeded) },
@@ -67,6 +70,7 @@ class BluetoothViewModel(
                             else -> flowOf(State.AskToTurnBluetoothOn)
                         }
                     }
+                    // todo: else -> flowOf(State.CanUseBluetooth)
                     else -> repository.scanningResults()
                         .map { result ->
                             @Suppress("USELESS_CAST")

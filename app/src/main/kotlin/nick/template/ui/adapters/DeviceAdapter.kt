@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import nick.template.data.Device
+import nick.template.data.local.Device
 import nick.template.databinding.DeviceItemBinding
 import nick.template.ui.OpenChatCallback
 

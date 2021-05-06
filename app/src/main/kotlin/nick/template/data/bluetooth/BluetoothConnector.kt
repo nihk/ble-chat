@@ -1,4 +1,4 @@
-package nick.template.data
+package nick.template.data.bluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
@@ -10,6 +10,8 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import nick.template.data.local.Device
+import nick.template.data.offerSafely
 import javax.inject.Inject
 
 interface BluetoothConnector {

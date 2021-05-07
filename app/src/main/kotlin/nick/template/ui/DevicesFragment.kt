@@ -16,6 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
+import nick.template.data.bluetooth.BluetoothUsability
 import nick.template.data.bluetooth.DevicesResource
 import nick.template.databinding.DevicesFragmentBinding
 import nick.template.ui.adapters.DeviceAdapter
@@ -62,17 +63,17 @@ class DevicesFragment @Inject constructor(
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
 
-        viewModel.events()
+        viewModel.bluetoothUsability()
             // Battery efficiency - don't listen to Bluetooth while in background
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { state ->
                 Log.d("asdf", state.toString())
 
                 when (state) {
-                    is Event.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
+                    is BluetoothUsability.Event.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
                     // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
-                    Event.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
-                    Event.InformBluetoothRequired -> {
+                    BluetoothUsability.Event.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
+                    BluetoothUsability.Event.InformBluetoothRequired -> {
                         showSnackbar(
                             view = view,
                             message = "You need BT to use this app",
@@ -81,7 +82,7 @@ class DevicesFragment @Inject constructor(
                             viewModel.promptIfNeeded()
                         }
                     }
-                    Event.InformPermissionsRequired -> {
+                    BluetoothUsability.Event.InformPermissionsRequired -> {
                         // todo: deep link to settings permissions?
                         showSnackbar(
                             view = view,
@@ -91,7 +92,7 @@ class DevicesFragment @Inject constructor(
                             viewModel.promptIfNeeded()
                         }
                     }
-                    is Event.CanUseBluetooth -> viewModel.scanForDevices()
+                    is BluetoothUsability.Event.CanUseBluetooth -> viewModel.scanForDevices()
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)

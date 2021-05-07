@@ -16,12 +16,14 @@ import nick.template.data.bluetooth.AndroidBluetoothConnector
 import nick.template.data.bluetooth.AndroidBluetoothPermissions
 import nick.template.data.bluetooth.AndroidBluetoothScanner
 import nick.template.data.bluetooth.AndroidBluetoothStates
+import nick.template.data.bluetooth.AndroidBluetoothUsability
 import nick.template.data.bluetooth.BatchedScanningConfig
 import nick.template.data.bluetooth.BluetoothConnector
 import nick.template.data.bluetooth.BluetoothPermissions
 import nick.template.data.bluetooth.BluetoothRepository
 import nick.template.data.bluetooth.BluetoothScanner
 import nick.template.data.bluetooth.BluetoothStates
+import nick.template.data.bluetooth.BluetoothUsability
 import nick.template.data.bluetooth.DefaultBluetoothRepository
 import nick.template.data.bluetooth.ScanningConfig
 import nick.template.data.local.AppDatabase
@@ -78,4 +80,7 @@ abstract class AppModule {
 
     @Binds
     abstract fun currentTime(currentTime: SystemCurrentTime): CurrentTime
+
+    @Binds
+    abstract fun bluetoothUsability(bluetoothUsability: AndroidBluetoothUsability): BluetoothUsability
 }

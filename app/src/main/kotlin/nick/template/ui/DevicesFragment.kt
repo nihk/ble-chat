@@ -64,35 +64,42 @@ class DevicesFragment @Inject constructor(
         binding.recyclerView.adapter = adapter
 
         viewModel.bluetoothUsability()
-            // Battery efficiency - don't listen to Bluetooth while in background
+            // Keep restarting whenever onStart hits, so that the usability is as up to date as can be.
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-            .onEach { state ->
-                Log.d("asdf", state.toString())
+            .onEach { transition ->
+                when (transition.state) {
+                    is BluetoothUsability.State.CannotUseBluetooth -> {
+                        when (transition.sideEffect) {
+                            is BluetoothUsability.SideEffect.RequestPermissions -> requestPermissionsLauncher.launch(transition.sideEffect.permissions.toTypedArray())
+                            // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
+                            BluetoothUsability.SideEffect.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
+                            BluetoothUsability.SideEffect.InformBluetoothRequired -> {
+                                showSnackbar(
+                                    view = view,
+                                    message = "You need BT to use this app",
+                                    buttonText = "Turn on"
+                                ) {
+                                    viewModel.promptIfNeeded()
+                                }
+                            }
+                            BluetoothUsability.SideEffect.InformPermissionsRequired -> {
+                                // todo: deep link to settings permissions?
+                                showSnackbar(
+                                    view = view,
+                                    message = "You need BT permissions to continue, bro",
+                                    buttonText = "Grant"
+                                ) {
+                                    viewModel.promptIfNeeded()
+                                }
+                            }
+                        }
+                    }
 
-                when (state) {
-                    is BluetoothUsability.Event.RequestPermissions -> requestPermissionsLauncher.launch(state.permissions.toTypedArray())
-                    // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
-                    BluetoothUsability.Event.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
-                    BluetoothUsability.Event.InformBluetoothRequired -> {
-                        showSnackbar(
-                            view = view,
-                            message = "You need BT to use this app",
-                            buttonText = "Turn on"
-                        ) {
-                            viewModel.promptIfNeeded()
+                    is BluetoothUsability.State.CanUseBluetooth -> {
+                        if (transition.sideEffect == BluetoothUsability.SideEffect.StartScanning) {
+                            viewModel.scanForDevices()
                         }
                     }
-                    BluetoothUsability.Event.InformPermissionsRequired -> {
-                        // todo: deep link to settings permissions?
-                        showSnackbar(
-                            view = view,
-                            message = "You need BT permissions to continue, bro",
-                            buttonText = "Grant"
-                        ) {
-                            viewModel.promptIfNeeded()
-                        }
-                    }
-                    is BluetoothUsability.Event.CanUseBluetooth -> viewModel.scanForDevices()
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)

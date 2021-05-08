@@ -39,6 +39,7 @@ class DefaultBluetoothUsability @Inject constructor(
 ) : BluetoothUsability {
     private val events = MutableSharedFlow<Event>()
 
+    // todo: decouple this function from stateful Events - use a new class
     override fun sideEffects(): Flow<SideEffect> {
         return combine(
             events.onStart { emit(Event.PromptIfNeeded) },

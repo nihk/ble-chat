@@ -14,6 +14,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
+sealed class LocationState {
+    object On : LocationState()
+    object Off : LocationState()
+}
+
 interface LocationStates {
     fun states(): Flow<LocationState>
 }

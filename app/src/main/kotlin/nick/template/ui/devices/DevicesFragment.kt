@@ -30,6 +30,7 @@ import javax.inject.Inject
 //  * connecting to known devices
 // todo: add refresh menu button
 // todo: automated espresso tests for all these states
+// todo: move all BLE related code into its own gradle module
 class DevicesFragment @Inject constructor(
     private val vmFactory: DevicesViewModel.Factory,
     private val openChatCallback: OpenChatCallback
@@ -62,11 +63,12 @@ class DevicesFragment @Inject constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = DevicesFragmentBinding.bind(view)
         val adapter = DeviceAdapter { device ->
-            dismissSnackbar()
+            cleanUpAnyStaleState()
             openChatCallback.with(device)
         }
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
+        binding.retry.setOnClickListener { viewModel.promptIfNeeded() }
 
         viewModel.bluetoothUsability()
             // Keep restarting whenever onStart hits, so that the usability is as up to date as can be.
@@ -118,6 +120,10 @@ class DevicesFragment @Inject constructor(
                     && !resource.data.isNullOrEmpty()
                 binding.centerProgressBar.isVisible = resource is Resource.Loading
                     && resource.data.isNullOrEmpty()
+
+                // fixme: don't make this overlap with snackbar
+                binding.noResults.isVisible = resource !is Resource.Loading
+                    && adapter.currentList.isEmpty()
 
                 if (!resource.data.isNullOrEmpty()) {
                     adapter.submitList(resource.data)

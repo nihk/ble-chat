@@ -14,6 +14,11 @@ import kotlinx.coroutines.flow.onStart
 import nick.template.data.offerSafely
 import javax.inject.Inject
 
+sealed class BluetoothState {
+    object On : BluetoothState()
+    object Other : BluetoothState()
+}
+
 interface BluetoothStates {
     fun states(): Flow<BluetoothState>
 }

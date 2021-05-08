@@ -17,7 +17,8 @@ interface BluetoothRepository {
 class DefaultBluetoothRepository @Inject constructor(
     private val bluetoothScanner: OneShotBluetoothScanner,
     private val bluetoothConnector: BluetoothConnector,
-    private val deviceDao: DeviceDao
+    private val deviceDao: DeviceDao,
+    private val deviceCacheThreshold: DeviceCacheThreshold
 ) : BluetoothRepository {
     override fun connect(device: Device): Flow<BluetoothConnector.State> = bluetoothConnector.connect(device)
 
@@ -28,7 +29,7 @@ class DefaultBluetoothRepository @Inject constructor(
         val flow = when (val result = bluetoothScanner.result()) {
             is BluetoothScanner.Result.Error -> deviceDao.selectAll().map { devices -> DevicesResource.Error(devices, result.error)}
             is BluetoothScanner.Result.Success -> {
-                deviceDao.insertAndPurgeOldDevices(result.devices)
+                deviceDao.insertAndPurgeOldDevices(result.devices, deviceCacheThreshold.threshold)
                 deviceDao.selectAll().map { devices -> DevicesResource.Success(devices) }
             }
         }

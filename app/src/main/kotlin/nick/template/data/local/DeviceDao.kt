@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 @Dao
 interface DeviceDao {
@@ -19,9 +20,20 @@ interface DeviceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(devices: List<Device>)
 
+    @Query("""
+        DELETE
+        FROM devices
+    """)
+    suspend fun nuke()
+
     @Transaction
-    suspend fun insertAndPurgeOldDevices(devices: List<Device>) {
-        // todo: clear out old entries and update existing ones
-        insert(devices)
+    suspend fun insertAndPurgeOldDevices(
+        devices: List<Device>,
+        threshold: Long
+    ) {
+        val cachedDevices = selectAll().first()
+            .filter { device -> device.lastSeen >= threshold }
+        nuke()
+        insert(cachedDevices + devices)
     }
 }

@@ -28,7 +28,9 @@ import nick.template.data.bluetooth.BluetoothScanner
 import nick.template.data.bluetooth.BluetoothStates
 import nick.template.data.bluetooth.BluetoothUsability
 import nick.template.data.bluetooth.DefaultBluetoothRepository
+import nick.template.data.bluetooth.DefaultDeviceCacheThreshold
 import nick.template.data.bluetooth.DefaultScanningTimeout
+import nick.template.data.bluetooth.DeviceCacheThreshold
 import nick.template.data.bluetooth.FirstResultBluetoothScanner
 import nick.template.data.bluetooth.OneShotBluetoothScanner
 import nick.template.data.bluetooth.ScanningConfig
@@ -103,4 +105,7 @@ abstract class AppModule {
 
     @Binds
     abstract fun locationStates(locationStates: AndroidLocationStates): LocationStates
+
+    @Binds
+    abstract fun deviceCacheThreshold(deviceCacheThreshold: DefaultDeviceCacheThreshold): DeviceCacheThreshold
 }

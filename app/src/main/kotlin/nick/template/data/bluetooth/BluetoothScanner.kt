@@ -16,7 +16,7 @@ interface BluetoothScanner {
 
     sealed class Result {
         data class Success(val devices: List<Device>) : Result()
-        data class Error(val errorCode: Int) : Result()
+        data class Error(val error: BluetoothError) : Result()
     }
 }
 
@@ -41,7 +41,7 @@ class AndroidBluetoothScanner @Inject constructor(
             }
 
             override fun onScanFailed(errorCode: Int) {
-                offerSafely(BluetoothScanner.Result.Error(errorCode))
+                offerSafely(BluetoothScanner.Result.Error(errorCode.toBluetoothError()))
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>) {
@@ -67,5 +67,11 @@ class AndroidBluetoothScanner @Inject constructor(
             name = device.name,
             lastSeen = currentTime.millis()
         )
+    }
+
+    private fun Int.toBluetoothError(): BluetoothError {
+        return when (this) {
+            else -> UnknownErrorCode(this)
+        }
     }
 }

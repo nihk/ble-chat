@@ -38,6 +38,7 @@ class DevicesFragment @Inject constructor(
     private val viewModel: BluetoothViewModel by viewModels { vmFactory.create(this) }
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var turnOnBluetoothLauncher: ActivityResultLauncher<Unit>
+    private var errorMessage: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +59,10 @@ class DevicesFragment @Inject constructor(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = DevicesFragmentBinding.bind(view)
-        val adapter = DeviceAdapter(openChatCallback)
+        val adapter = DeviceAdapter { device ->
+            dismissSnackbar()
+            openChatCallback.with(device)
+        }
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
 
@@ -108,12 +112,14 @@ class DevicesFragment @Inject constructor(
                 if (resource is DevicesResource.Error) {
                     showSnackbar(
                         view = view,
-                        message = "Error: ${resource.errorCode}",
+                        message = resource.error.message,
                         buttonText = "Retry"
                     ) {
                         // These are not recoverable.
                         viewModel.promptIfNeeded()
                     }
+                } else {
+                    dismissSnackbar()
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -125,8 +131,14 @@ class DevicesFragment @Inject constructor(
         buttonText: String? = null,
         action: (View) -> Unit = {}
     ) {
-        Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
+        dismissSnackbar()
+        errorMessage = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
             .setAction(buttonText, action)
-            .show()
+            .also { it.show() }
+    }
+
+    private fun dismissSnackbar() {
+        errorMessage?.dismiss()
+        errorMessage = null
     }
 }

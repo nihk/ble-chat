@@ -19,6 +19,6 @@ class DefaultOneShotBluetoothScanner @Inject constructor(
                     result is BluetoothScanner.Result.Error
                         || result is BluetoothScanner.Result.Success && result.devices.isNotEmpty()
                 }
-        } ?: BluetoothScanner.Result.Error(errorCode = -666)
+        } ?: BluetoothScanner.Result.Error(ScanningTimedOut(scanningTimeout.timeout))
     }
 }

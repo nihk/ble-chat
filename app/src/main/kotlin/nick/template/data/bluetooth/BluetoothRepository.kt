@@ -26,7 +26,7 @@ class DefaultBluetoothRepository @Inject constructor(
         emit(DevicesResource.Loading(deviceDao.selectAll().first()))
 
         val flow = when (val result = bluetoothScanner.result()) {
-            is BluetoothScanner.Result.Error -> deviceDao.selectAll().map { devices -> DevicesResource.Error(devices, result.errorCode)}
+            is BluetoothScanner.Result.Error -> deviceDao.selectAll().map { devices -> DevicesResource.Error(devices, result.error)}
             is BluetoothScanner.Result.Success -> {
                 deviceDao.insertAndPurgeOldDevices(result.devices)
                 deviceDao.selectAll().map { devices -> DevicesResource.Success(devices) }
@@ -42,5 +42,5 @@ sealed class DevicesResource {
 
     data class Loading(override val devices: List<Device>? = null) : DevicesResource()
     data class Success(override val devices: List<Device>) : DevicesResource()
-    data class Error(override val devices: List<Device>? = null, val errorCode: Int) : DevicesResource()
+    data class Error(override val devices: List<Device>? = null, val error: BluetoothError) : DevicesResource()
 }

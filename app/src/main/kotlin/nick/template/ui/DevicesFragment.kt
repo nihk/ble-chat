@@ -27,6 +27,7 @@ import javax.inject.Inject
 //  * storage of historical messages
 //  * connecting to known devices
 // todo: add refresh menu button
+// todo: automated espresso tests for all these states
 class DevicesFragment @Inject constructor(
     private val vmFactory: BluetoothViewModel.Factory,
     private val openChatCallback: OpenChatCallback
@@ -53,7 +54,7 @@ class DevicesFragment @Inject constructor(
                 viewModel.denyTurningBluetoothOn()
             } // else BluetoothStates will emit an On event, retriggering the ViewModel flow automatically.
         }
-        turnOnLocationLauncher = registerForActivityResult(TurnOnLocation()) {}
+        turnOnLocationLauncher = registerForActivityResult(OpenLocationSettings()) {}
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,6 +70,7 @@ class DevicesFragment @Inject constructor(
             // Keep restarting whenever onStart hits, so that the usability is as up to date as can be.
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { sideEffect ->
+                cleanUpAnyStaleState()
                 when (sideEffect) {
                     is BluetoothUsability.SideEffect.RequestPermissions -> requestPermissionsLauncher.launch(sideEffect.permissions.toTypedArray())
                     // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
@@ -109,6 +111,7 @@ class DevicesFragment @Inject constructor(
 
         viewModel.devices()
             .onEach { resource ->
+                // fixme: improve readability here
                 binding.topProgressBar.isVisible = resource is DevicesResource.Loading
                     && !resource.devices.isNullOrEmpty()
                 binding.centerProgressBar.isVisible = resource is DevicesResource.Loading
@@ -127,8 +130,6 @@ class DevicesFragment @Inject constructor(
                         // These are not recoverable.
                         viewModel.promptIfNeeded()
                     }
-                } else {
-                    dismissSnackbar()
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -149,6 +150,10 @@ class DevicesFragment @Inject constructor(
     private fun dismissSnackbar() {
         errorMessage?.dismiss()
         errorMessage = null
+    }
+
+    private fun cleanUpAnyStaleState() {
+        dismissSnackbar()
     }
 
     private fun showTurnOnLocationDialog() {

@@ -47,6 +47,10 @@ class BluetoothViewModel(
         viewModelScope.launch { bluetoothUsability.handleEvent(BluetoothUsability.Event.DenyTurningBluetoothOn) }
     }
 
+    fun denyTurningLocationOn() {
+        viewModelScope.launch { bluetoothUsability.handleEvent(BluetoothUsability.Event.DenyTurningLocationOn) }
+    }
+
     class Factory @Inject constructor(
         private val bluetoothUsability: BluetoothUsability,
         private val repository: BluetoothRepository

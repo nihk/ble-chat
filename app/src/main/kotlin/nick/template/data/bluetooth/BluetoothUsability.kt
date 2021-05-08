@@ -4,6 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
+import nick.template.data.LocationState
+import nick.template.data.LocationStates
 import nick.template.data.bluetooth.BluetoothUsability.Event
 import nick.template.data.bluetooth.BluetoothUsability.SideEffect
 import javax.inject.Inject
@@ -16,6 +18,7 @@ interface BluetoothUsability {
         object PromptIfNeeded : Event()
         object DenyPermissions : Event()
         object DenyTurningBluetoothOn : Event()
+        object DenyTurningLocationOn : Event()
     }
 
     sealed class SideEffect {
@@ -24,11 +27,14 @@ interface BluetoothUsability {
         object InformPermissionsRequired : SideEffect()
         object AskToTurnBluetoothOn : SideEffect()
         object InformBluetoothRequired : SideEffect()
+        object AskToTurnLocationOn : SideEffect()
+        object InformLocationRequired : SideEffect()
     }
 }
 
 class DefaultBluetoothUsability @Inject constructor(
     private val bluetoothStates: BluetoothStates,
+    private val locationStates: LocationStates,
     private val bluetoothPermissions: BluetoothPermissions
 ) : BluetoothUsability {
     private val events = MutableSharedFlow<Event>()
@@ -36,8 +42,9 @@ class DefaultBluetoothUsability @Inject constructor(
     override fun sideEffects(): Flow<SideEffect> {
         return combine(
             events.onStart { emit(Event.PromptIfNeeded) },
-            bluetoothStates.states()
-        ) { event, bluetoothState ->
+            bluetoothStates.states(),
+            locationStates.states()
+        ) { event, bluetoothState, locationState ->
             val permissionsState = bluetoothPermissions.state()
             when {
                 permissionsState is BluetoothPermissions.State.MissingPermissions -> {
@@ -50,6 +57,12 @@ class DefaultBluetoothUsability @Inject constructor(
                     when (event) {
                         Event.DenyTurningBluetoothOn -> SideEffect.InformBluetoothRequired
                         else -> SideEffect.AskToTurnBluetoothOn
+                    }
+                }
+                locationState is LocationState.Off -> {
+                    when (event) {
+                        Event.DenyTurningLocationOn -> SideEffect.InformLocationRequired
+                        else -> SideEffect.AskToTurnLocationOn
                     }
                 }
                 else -> SideEffect.UseBluetooth

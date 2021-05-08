@@ -4,13 +4,16 @@ import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.location.LocationManager
 import androidx.room.Room
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import nick.template.data.AndroidLocationStates
 import nick.template.data.CurrentTime
+import nick.template.data.LocationStates
 import nick.template.data.SystemCurrentTime
 import nick.template.data.bluetooth.AndroidBluetoothConnector
 import nick.template.data.bluetooth.AndroidBluetoothPermissions
@@ -44,8 +47,12 @@ abstract class AppModule {
 
         @Provides
         fun bluetoothAdapter(bluetoothManager: BluetoothManager): BluetoothAdapter {
-            // fixme: use BluetoothAdapter.getDefaultAdapter() instead?
             return bluetoothManager.adapter
+        }
+
+        @Provides
+        fun locationManager(application: Application): LocationManager {
+            return application.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         }
 
         @Provides
@@ -92,4 +99,7 @@ abstract class AppModule {
 
     @Binds
     abstract fun bluetoothUsability(bluetoothUsability: DefaultBluetoothUsability): BluetoothUsability
+
+    @Binds
+    abstract fun locationStates(locationStates: AndroidLocationStates): LocationStates
 }

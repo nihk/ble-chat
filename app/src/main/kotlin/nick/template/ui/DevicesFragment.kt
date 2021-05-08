@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,10 +26,6 @@ import javax.inject.Inject
 //  check out how other repositories are handling things like:
 //  * storage of historical messages
 //  * connecting to known devices
-// fixme: need to listen to location states, e.g.
-//  Settings.Secure.getInt(context.contentResolver, LOCATION_MODE)
-//  and use Settings.ACTION_LOCATION_SOURCE_SETTINGS or LocationRequestSettings (Play services)
-//  to prompt.
 // todo: add refresh menu button
 class DevicesFragment @Inject constructor(
     private val vmFactory: BluetoothViewModel.Factory,
@@ -38,6 +35,7 @@ class DevicesFragment @Inject constructor(
     private val viewModel: BluetoothViewModel by viewModels { vmFactory.create(this) }
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var turnOnBluetoothLauncher: ActivityResultLauncher<Unit>
+    private lateinit var turnOnLocationLauncher: ActivityResultLauncher<Unit>
     private var errorMessage: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +53,7 @@ class DevicesFragment @Inject constructor(
                 viewModel.denyTurningBluetoothOn()
             } // else BluetoothStates will emit an On event, retriggering the ViewModel flow automatically.
         }
+        turnOnLocationLauncher = registerForActivityResult(TurnOnLocation()) {}
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -84,11 +83,21 @@ class DevicesFragment @Inject constructor(
                         }
                     }
                     BluetoothUsability.SideEffect.InformPermissionsRequired -> {
-                        // todo: deep link to settings permissions?
+                        // todo: deep link to settings permissions if can't prompt anymore?
                         showSnackbar(
                             view = view,
                             message = "You need BT permissions to continue, bro",
                             buttonText = "Grant"
+                        ) {
+                            viewModel.promptIfNeeded()
+                        }
+                    }
+                    BluetoothUsability.SideEffect.AskToTurnLocationOn -> showTurnOnLocationDialog()
+                    BluetoothUsability.SideEffect.InformLocationRequired -> {
+                        showSnackbar(
+                            view = view,
+                            message = "You need Location to use this app",
+                            buttonText = "Turn on"
                         ) {
                             viewModel.promptIfNeeded()
                         }
@@ -140,5 +149,22 @@ class DevicesFragment @Inject constructor(
     private fun dismissSnackbar() {
         errorMessage?.dismiss()
         errorMessage = null
+    }
+
+    private fun showTurnOnLocationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Turn on Location")
+            .setMessage("Location needs to be turned on to use Bluetooth. Weird, I know.")
+            .setPositiveButton("Open settings") { _, _ ->
+                turnOnLocationLauncher.launch(Unit)
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                viewModel.denyTurningLocationOn()
+            }
+            .setOnCancelListener {
+                viewModel.denyTurningLocationOn()
+            }
+            .create()
+            .show()
     }
 }

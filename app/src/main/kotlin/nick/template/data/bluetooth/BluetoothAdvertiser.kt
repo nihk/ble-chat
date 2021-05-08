@@ -30,6 +30,7 @@ class AndroidBluetoothAdvertiser @Inject constructor(
     override suspend fun start(): BluetoothAdvertiser.Result = suspendCancellableCoroutine { continuation ->
         /** fixme: might need to call [bluetoothAdapter.isMultipleAdvertisementSupported] at some point **/
         val advertiser = requireBle(bluetoothAdapter.bluetoothLeAdvertiser)
+
         val callback = object : AdvertiseCallback() {
             override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
                 continuation.resumeSafely(BluetoothAdvertiser.Result.Success(settingsInEffect.toAdvertisement()))

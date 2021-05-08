@@ -40,6 +40,7 @@ class DefaultBluetoothUsability @Inject constructor(
     private val events = MutableSharedFlow<Event>()
 
     // todo: decouple this function from stateful Events - use a new class
+    // todo: can i stash a timestamp in AskTo* SideEffects and let VM/UI decide what to do?
     override fun sideEffects(): Flow<SideEffect> {
         return combine(
             events.onStart { emit(Event.PromptIfNeeded) },

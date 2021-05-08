@@ -9,5 +9,5 @@ interface ScanningTimeout {
 }
 
 class DefaultScanningTimeout @Inject constructor() : ScanningTimeout {
-    override val timeout: Duration = 10.seconds
+    override val timeout: Duration = 5.seconds
 }

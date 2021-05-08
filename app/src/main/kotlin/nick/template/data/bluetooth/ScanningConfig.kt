@@ -9,7 +9,9 @@ interface ScanningConfig {
     val scanSettings: ScanSettings
 }
 
-class BatchedScanningConfig @Inject constructor() : ScanningConfig {
+class BatchedScanningConfig @Inject constructor(
+    private val bluetoothUuids: BluetoothUuids
+) : ScanningConfig {
     override val filters: List<ScanFilter>? = null
 
     override val scanSettings: ScanSettings = ScanSettings.Builder()

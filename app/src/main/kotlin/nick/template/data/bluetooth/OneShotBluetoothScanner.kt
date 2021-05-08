@@ -8,7 +8,7 @@ interface OneShotBluetoothScanner {
     suspend fun result(): BluetoothScanner.Result
 }
 
-class DefaultOneShotBluetoothScanner @Inject constructor(
+class FirstResultBluetoothScanner @Inject constructor(
     private val bluetoothScanner: BluetoothScanner,
     private val scanningTimeout: ScanningTimeout
 ) : OneShotBluetoothScanner {

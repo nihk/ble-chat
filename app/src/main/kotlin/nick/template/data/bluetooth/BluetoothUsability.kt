@@ -6,13 +6,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import nick.template.data.bluetooth.BluetoothUsability.Event
 import nick.template.data.bluetooth.BluetoothUsability.SideEffect
-import nick.template.data.bluetooth.BluetoothUsability.State
-import nick.template.data.bluetooth.BluetoothUsability.Transition
 import javax.inject.Inject
 
 interface BluetoothUsability {
-    fun transitions(): Flow<Transition>
-    suspend fun event(event: Event)
+    fun sideEffects(): Flow<SideEffect>
+    suspend fun handleEvent(event: Event)
 
     sealed class Event {
         object PromptIfNeeded : Event()
@@ -20,23 +18,13 @@ interface BluetoothUsability {
         object DenyTurningBluetoothOn : Event()
     }
 
-    sealed class State {
-        object CanUseBluetooth : State()
-        object CannotUseBluetooth : State()
-    }
-
     sealed class SideEffect {
-        object StartScanning : SideEffect()
+        object UseBluetooth : SideEffect()
         data class RequestPermissions(val permissions: List<String>) : SideEffect()
         object InformPermissionsRequired : SideEffect()
         object AskToTurnBluetoothOn : SideEffect()
         object InformBluetoothRequired : SideEffect()
     }
-
-    data class Transition(
-        val state: State,
-        val sideEffect: SideEffect
-    )
 }
 
 class DefaultBluetoothUsability @Inject constructor(
@@ -45,7 +33,7 @@ class DefaultBluetoothUsability @Inject constructor(
 ) : BluetoothUsability {
     private val events = MutableSharedFlow<Event>()
 
-    override fun transitions(): Flow<Transition> {
+    override fun sideEffects(): Flow<SideEffect> {
         return combine(
             events.onStart { emit(Event.PromptIfNeeded) },
             bluetoothStates.states()
@@ -54,34 +42,22 @@ class DefaultBluetoothUsability @Inject constructor(
             when {
                 permissionsState is BluetoothPermissions.State.MissingPermissions -> {
                     when (event) {
-                        Event.DenyPermissions -> Transition(
-                            State.CannotUseBluetooth,
-                            SideEffect.InformPermissionsRequired
-                        )
-                        else -> Transition(
-                            State.CannotUseBluetooth,
-                            SideEffect.RequestPermissions(permissionsState.permissions)
-                        )
+                        Event.DenyPermissions -> SideEffect.InformPermissionsRequired
+                        else -> SideEffect.RequestPermissions(permissionsState.permissions)
                     }
                 }
                 bluetoothState !is BluetoothState.On -> {
                     when (event) {
-                        Event.DenyTurningBluetoothOn -> Transition(
-                            State.CannotUseBluetooth,
-                            SideEffect.InformBluetoothRequired
-                        )
-                        else -> Transition(
-                            State.CannotUseBluetooth,
-                            SideEffect.AskToTurnBluetoothOn
-                        )
+                        Event.DenyTurningBluetoothOn -> SideEffect.InformBluetoothRequired
+                        else -> SideEffect.AskToTurnBluetoothOn
                     }
                 }
-                else -> Transition(State.CanUseBluetooth, SideEffect.StartScanning)
+                else -> SideEffect.UseBluetooth
             }
         }
     }
 
-    override suspend fun event(event: Event) {
+    override suspend fun handleEvent(event: Event) {
         events.emit(event)
     }
 }

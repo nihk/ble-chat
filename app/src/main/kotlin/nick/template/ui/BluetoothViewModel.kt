@@ -26,7 +26,7 @@ class BluetoothViewModel(
     private val devices = MutableStateFlow<DevicesResource?>(null)
     fun devices(): Flow<DevicesResource> = devices.filterNotNull()
 
-    fun bluetoothUsability(): Flow<BluetoothUsability.Transition> = bluetoothUsability.transitions()
+    fun bluetoothUsability(): Flow<BluetoothUsability.SideEffect> = bluetoothUsability.sideEffects()
 
     fun scanForDevices() {
         scanning?.cancel()
@@ -36,15 +36,15 @@ class BluetoothViewModel(
     }
 
     fun promptIfNeeded() {
-        viewModelScope.launch { bluetoothUsability.event(BluetoothUsability.Event.PromptIfNeeded) }
+        viewModelScope.launch { bluetoothUsability.handleEvent(BluetoothUsability.Event.PromptIfNeeded) }
     }
 
     fun denyPermissions() {
-        viewModelScope.launch { bluetoothUsability.event(BluetoothUsability.Event.DenyPermissions) }
+        viewModelScope.launch { bluetoothUsability.handleEvent(BluetoothUsability.Event.DenyPermissions) }
     }
 
     fun denyTurningBluetoothOn() {
-        viewModelScope.launch { bluetoothUsability.event(BluetoothUsability.Event.DenyTurningBluetoothOn) }
+        viewModelScope.launch { bluetoothUsability.handleEvent(BluetoothUsability.Event.DenyTurningBluetoothOn) }
     }
 
     class Factory @Inject constructor(

@@ -1,0 +1,13 @@
+package nick.template.data.bluetooth
+
+import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.seconds
+
+interface ScanningTimeout {
+    val timeout: Duration
+}
+
+class DefaultScanningTimeout @Inject constructor() : ScanningTimeout {
+    override val timeout: Duration = 5.seconds
+}

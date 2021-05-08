@@ -28,6 +28,7 @@ import nick.template.data.bluetooth.BluetoothScanner
 import nick.template.data.bluetooth.BluetoothStates
 import nick.template.data.bluetooth.BluetoothUsability
 import nick.template.data.bluetooth.DefaultBluetoothRepository
+import nick.template.data.bluetooth.DefaultScanningTimeout
 import nick.template.data.bluetooth.FirstResultBluetoothScanner
 import nick.template.data.bluetooth.OneShotBluetoothScanner
 import nick.template.data.bluetooth.ScanningConfig
@@ -89,7 +90,7 @@ abstract class AppModule {
     abstract fun scanningConfig(scanningConfig: BatchedScanningConfig): ScanningConfig
 
     @Binds
-    abstract fun scanningTimeout(scanningTimeout: BatchedScanningConfig): ScanningTimeout
+    abstract fun scanningTimeout(scanningTimeout: DefaultScanningTimeout): ScanningTimeout
 
     @Binds
     abstract fun bluetoothConnector(bluetoothConnector: AndroidBluetoothConnector): BluetoothConnector

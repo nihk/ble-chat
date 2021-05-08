@@ -27,9 +27,7 @@ class AndroidBluetoothScanner @Inject constructor(
 ) : BluetoothScanner {
 
     override fun results(): Flow<BluetoothScanner.Result> = callbackFlow {
-        val bluetoothLeScanner = requireNotNull(bluetoothAdapter.bluetoothLeScanner) {
-            "Either BT wasn't turned on or relevant permissions weren't actively granted!"
-        }
+        val bluetoothLeScanner = requireBle(bluetoothAdapter.bluetoothLeScanner)
 
         // BluetoothLeScanner.stopScan() is actually an asynchronous operation, so these callbacks
         // can still get hit after stopScan() is invoked.
@@ -67,11 +65,5 @@ class AndroidBluetoothScanner @Inject constructor(
             name = device.name,
             lastSeen = currentTime.millis()
         )
-    }
-
-    private fun Int.toBluetoothError(): BluetoothError {
-        return when (this) {
-            else -> UnknownErrorCode(this)
-        }
     }
 }

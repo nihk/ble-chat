@@ -11,3 +11,9 @@ class UnknownErrorCode(val errorCode: Int) : BluetoothError(
 class ScanningTimedOut(val duration: Duration) : BluetoothError(
     message = "Scanning timed out after $duration"
 )
+
+internal fun Int.toBluetoothError(): BluetoothError {
+    return when (this) {
+        else -> UnknownErrorCode(this)
+    }
+}

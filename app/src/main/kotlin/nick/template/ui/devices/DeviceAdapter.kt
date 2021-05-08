@@ -1,4 +1,4 @@
-package nick.template.ui.adapters
+package nick.template.ui.devices
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

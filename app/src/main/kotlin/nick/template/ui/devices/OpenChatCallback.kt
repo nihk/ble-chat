@@ -1,8 +1,9 @@
-package nick.template.ui
+package nick.template.ui.devices
 
 import androidx.navigation.NavController
 import nick.template.data.local.Device
 import nick.template.navigation.AppNavGraph
+import nick.template.ui.chat.ChatFragment
 import javax.inject.Inject
 
 interface OpenChatCallback {

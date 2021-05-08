@@ -1,4 +1,4 @@
-package nick.template.ui
+package nick.template.ui.devices
 
 import android.os.Bundle
 import android.view.View
@@ -16,10 +16,12 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
+import nick.template.data.Resource
 import nick.template.data.bluetooth.BluetoothUsability
-import nick.template.data.bluetooth.DevicesResource
+import nick.template.data.local.Device
 import nick.template.databinding.DevicesFragmentBinding
-import nick.template.ui.adapters.DeviceAdapter
+import nick.template.ui.OpenLocationSettings
+import nick.template.ui.TurnOnBluetooth
 import javax.inject.Inject
 
 // todo: bluetooth chat interface
@@ -29,11 +31,11 @@ import javax.inject.Inject
 // todo: add refresh menu button
 // todo: automated espresso tests for all these states
 class DevicesFragment @Inject constructor(
-    private val vmFactory: BluetoothViewModel.Factory,
+    private val vmFactory: DevicesViewModel.Factory,
     private val openChatCallback: OpenChatCallback
 ) : Fragment(R.layout.devices_fragment) {
 
-    private val viewModel: BluetoothViewModel by viewModels { vmFactory.create(this) }
+    private val viewModel: DevicesViewModel by viewModels { vmFactory.create(this) }
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var turnOnBluetoothLauncher: ActivityResultLauncher<Unit>
     private lateinit var turnOnLocationLauncher: ActivityResultLauncher<Unit>
@@ -110,21 +112,21 @@ class DevicesFragment @Inject constructor(
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.devices()
-            .onEach { resource ->
+            .onEach { resource: Resource<List<Device>> ->
                 // fixme: improve readability here
-                binding.topProgressBar.isVisible = resource is DevicesResource.Loading
-                    && !resource.devices.isNullOrEmpty()
-                binding.centerProgressBar.isVisible = resource is DevicesResource.Loading
-                    && resource.devices.isNullOrEmpty()
+                binding.topProgressBar.isVisible = resource is Resource.Loading
+                    && !resource.data.isNullOrEmpty()
+                binding.centerProgressBar.isVisible = resource is Resource.Loading
+                    && resource.data.isNullOrEmpty()
 
-                if (!resource.devices.isNullOrEmpty()) {
-                    adapter.submitList(resource.devices)
+                if (!resource.data.isNullOrEmpty()) {
+                    adapter.submitList(resource.data)
                 }
 
-                if (resource is DevicesResource.Error) {
+                if (resource is Resource.Error) {
                     showSnackbar(
                         view = view,
-                        message = resource.error.message,
+                        message = resource.throwable.message.toString(),
                         buttonText = "Retry"
                     ) {
                         // These are not recoverable.

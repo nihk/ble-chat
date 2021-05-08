@@ -14,10 +14,10 @@ import dagger.hilt.android.components.ActivityComponent
 import dagger.multibindings.IntoMap
 import nick.template.R
 import nick.template.ui.AppFragmentFactory
-import nick.template.ui.ChatFragment
-import nick.template.ui.DefaultOpenChatCallback
-import nick.template.ui.DevicesFragment
-import nick.template.ui.OpenChatCallback
+import nick.template.ui.chat.ChatFragment
+import nick.template.ui.devices.DefaultOpenChatCallback
+import nick.template.ui.devices.DevicesFragment
+import nick.template.ui.devices.OpenChatCallback
 
 @Module
 @InstallIn(ActivityComponent::class)

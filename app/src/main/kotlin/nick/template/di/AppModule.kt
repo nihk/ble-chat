@@ -22,12 +22,14 @@ import nick.template.data.bluetooth.AndroidBluetoothStates
 import nick.template.data.bluetooth.DefaultBluetoothUsability
 import nick.template.data.bluetooth.BatchedScanningConfig
 import nick.template.data.bluetooth.BluetoothConnector
+import nick.template.data.bluetooth.BluetoothConversationRepository
 import nick.template.data.bluetooth.BluetoothPermissions
-import nick.template.data.bluetooth.BluetoothRepository
+import nick.template.data.bluetooth.ScanningRepository
 import nick.template.data.bluetooth.BluetoothScanner
 import nick.template.data.bluetooth.BluetoothStates
 import nick.template.data.bluetooth.BluetoothUsability
-import nick.template.data.bluetooth.DefaultBluetoothRepository
+import nick.template.data.bluetooth.ConversationRepository
+import nick.template.data.bluetooth.DefaultScanningRepository
 import nick.template.data.bluetooth.DefaultDeviceCacheThreshold
 import nick.template.data.bluetooth.DefaultScanningTimeout
 import nick.template.data.bluetooth.DeviceCacheThreshold
@@ -37,6 +39,7 @@ import nick.template.data.bluetooth.ScanningConfig
 import nick.template.data.bluetooth.ScanningTimeout
 import nick.template.data.local.AppDatabase
 import nick.template.data.local.DeviceDao
+import nick.template.data.local.MessageDao
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -71,10 +74,18 @@ abstract class AppModule {
         fun deviceDao(appDatabase: AppDatabase): DeviceDao {
             return appDatabase.deviceDao()
         }
+
+        @Provides
+        fun messageDao(appDatabase: AppDatabase): MessageDao {
+            return appDatabase.messageDao()
+        }
     }
 
     @Binds
-    abstract fun bluetoothRepository(repository: DefaultBluetoothRepository): BluetoothRepository
+    abstract fun scanningRepository(repository: DefaultScanningRepository): ScanningRepository
+
+    @Binds
+    abstract fun conversationRepository(repository: BluetoothConversationRepository): ConversationRepository
 
     @Binds
     abstract fun bluetoothStates(bluetoothStates: AndroidBluetoothStates): BluetoothStates

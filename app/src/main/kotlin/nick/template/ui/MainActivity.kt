@@ -10,6 +10,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import nick.template.R
 import nick.template.di.MainEntryPoint
 import nick.template.navigation.AppNavGraph
+import nick.template.ui.chat.ChatFragment
+import nick.template.ui.devices.DevicesFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.main_activity) {

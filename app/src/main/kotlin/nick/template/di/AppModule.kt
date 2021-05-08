@@ -25,7 +25,10 @@ import nick.template.data.bluetooth.BluetoothScanner
 import nick.template.data.bluetooth.BluetoothStates
 import nick.template.data.bluetooth.BluetoothUsability
 import nick.template.data.bluetooth.DefaultBluetoothRepository
+import nick.template.data.bluetooth.DefaultOneShotBluetoothScanner
+import nick.template.data.bluetooth.OneShotBluetoothScanner
 import nick.template.data.bluetooth.ScanningConfig
+import nick.template.data.bluetooth.ScanningTimeout
 import nick.template.data.local.AppDatabase
 import nick.template.data.local.DeviceDao
 
@@ -70,10 +73,16 @@ abstract class AppModule {
     abstract fun bluetoothScanner(bluetoothScanner: AndroidBluetoothScanner): BluetoothScanner
 
     @Binds
+    abstract fun oneShotBluetoothScanner(oneShotBluetoothScanner: DefaultOneShotBluetoothScanner): OneShotBluetoothScanner
+
+    @Binds
     abstract fun bluetoothPermissions(bluetoothPermissions: AndroidBluetoothPermissions): BluetoothPermissions
 
     @Binds
     abstract fun scanningConfig(scanningConfig: BatchedScanningConfig): ScanningConfig
+
+    @Binds
+    abstract fun scanningTimeout(scanningTimeout: BatchedScanningConfig): ScanningTimeout
 
     @Binds
     abstract fun bluetoothConnector(bluetoothConnector: AndroidBluetoothConnector): BluetoothConnector

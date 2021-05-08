@@ -6,9 +6,12 @@ import javax.inject.Inject
 import kotlin.time.Duration
 import kotlin.time.seconds
 
-interface ScanningConfig {
+interface ScanningConfig : ScanningTimeout {
     val filters: List<ScanFilter>?
     val scanSettings: ScanSettings
+}
+
+interface ScanningTimeout {
     val timeout: Duration
 }
 

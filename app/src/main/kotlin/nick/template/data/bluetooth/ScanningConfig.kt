@@ -2,6 +2,7 @@ package nick.template.data.bluetooth
 
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanSettings
+import android.os.ParcelUuid
 import javax.inject.Inject
 
 interface ScanningConfig {
@@ -9,13 +10,16 @@ interface ScanningConfig {
     val scanSettings: ScanSettings
 }
 
-class BatchedScanningConfig @Inject constructor(
-    private val bluetoothUuids: BluetoothUuids
+class AppScanningConfig @Inject constructor(
+    bluetoothUuids: BluetoothUuids
 ) : ScanningConfig {
-    override val filters: List<ScanFilter>? = null
+    override val filters: List<ScanFilter> = listOf(
+        ScanFilter.Builder()
+            .setServiceUuid(ParcelUuid(bluetoothUuids.service))
+            .build()
+    )
 
     override val scanSettings: ScanSettings = ScanSettings.Builder()
         .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
-        .setReportDelay(1_000L)
         .build()
 }

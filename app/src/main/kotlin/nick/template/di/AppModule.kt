@@ -25,7 +25,7 @@ import nick.template.data.bluetooth.AndroidBluetoothPermissions
 import nick.template.data.bluetooth.AndroidBluetoothScanner
 import nick.template.data.bluetooth.AndroidBluetoothStates
 import nick.template.data.bluetooth.DefaultBluetoothUsability
-import nick.template.data.bluetooth.BatchedScanningConfig
+import nick.template.data.bluetooth.AppScanningConfig
 import nick.template.data.bluetooth.BluetoothConnector
 import nick.template.data.bluetooth.BluetoothConversationRepository
 import nick.template.data.bluetooth.BluetoothPermissions
@@ -38,7 +38,7 @@ import nick.template.data.bluetooth.ConversationRepository
 import nick.template.data.bluetooth.AndroidBluetoothServer
 import nick.template.data.bluetooth.BluetoothAdvertiser
 import nick.template.data.bluetooth.BluetoothUuids
-import nick.template.data.bluetooth.ChatBluetoothUuids
+import nick.template.data.bluetooth.AppBluetoothUuids
 import nick.template.data.bluetooth.DefaultAdvertisingConfig
 import nick.template.data.bluetooth.DefaultAdvertisingRepository
 import nick.template.data.bluetooth.DefaultScanningRepository
@@ -133,7 +133,7 @@ abstract class AppModule {
     abstract fun bluetoothPermissions(bluetoothPermissions: AndroidBluetoothPermissions): BluetoothPermissions
 
     @Binds
-    abstract fun scanningConfig(scanningConfig: BatchedScanningConfig): ScanningConfig
+    abstract fun scanningConfig(scanningConfig: AppScanningConfig): ScanningConfig
 
     @Binds
     abstract fun scanningTimeout(scanningTimeout: DefaultScanningTimeout): ScanningTimeout
@@ -157,7 +157,7 @@ abstract class AppModule {
     abstract fun bluetoothServer(bluetoothServer: AndroidBluetoothServer): BluetoothServer
 
     @Binds
-    abstract fun bluetoothUuids(bluetoothUuids: ChatBluetoothUuids): BluetoothUuids
+    abstract fun bluetoothUuids(bluetoothUuids: AppBluetoothUuids): BluetoothUuids
 
     @Binds
     abstract fun bluetoothAdvertiser(bluetoothAdvertiser: AndroidBluetoothAdvertiser): BluetoothAdvertiser

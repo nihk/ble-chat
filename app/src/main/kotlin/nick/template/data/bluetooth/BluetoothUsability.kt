@@ -32,7 +32,7 @@ class DefaultBluetoothUsability @Inject constructor(
 ) : BluetoothUsability {
     private val events = MutableSharedFlow<Unit>()
 
-    // Counts to avoid spamming the user with requests. UI can act accordingly based on
+    // Counts can be used to avoid spamming the user with requests. UI can act accordingly based on
     // how many times the user has been prompted with requests/asks.
     private var requestPermissionsCount = 0
     private var askToTurnBluetoothOnCount = 0

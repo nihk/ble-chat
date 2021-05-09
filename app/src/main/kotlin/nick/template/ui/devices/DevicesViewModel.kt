@@ -29,7 +29,8 @@ class DevicesViewModel(
     private val scanningRequests = MutableSharedFlow<Unit>()
 
     init {
-        scanningRequests.flatMapLatest { repository.scan() }
+        scanningRequests
+            .flatMapLatest { repository.scan() }
             .onEach { devices.value = it }
             .launchIn(viewModelScope)
     }

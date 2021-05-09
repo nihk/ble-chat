@@ -3,6 +3,7 @@ package nick.template.data.bluetooth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onStart
 import nick.template.data.LocationState
 import nick.template.data.LocationStates
@@ -29,7 +30,7 @@ class DefaultBluetoothUsability @Inject constructor(
     private val locationStates: LocationStates,
     private val bluetoothPermissions: BluetoothPermissions
 ) : BluetoothUsability {
-    private val triggers = MutableSharedFlow<Unit>()
+    private val events = MutableSharedFlow<Unit>()
 
     // Counts to avoid spamming the user with requests. UI can act accordingly based on
     // how many times the user has been prompted with requests/asks.
@@ -38,23 +39,23 @@ class DefaultBluetoothUsability @Inject constructor(
     private var askToTurnLocationOnCount = 0
 
     override fun sideEffects(): Flow<SideEffect> {
-        return combine(
-            triggers.onStart { emit(Unit) },
-            bluetoothStates.states(),
-            locationStates.states()
-        ) { _, bluetoothState, locationState ->
-            val permissionsState = bluetoothPermissions.state()
-            when {
-                permissionsState is BluetoothPermissions.State.MissingPermissions ->
-                    SideEffect.RequestPermissions(permissionsState.permissions, requestPermissionsCount++)
-                bluetoothState !is BluetoothState.On -> SideEffect.AskToTurnBluetoothOn(askToTurnBluetoothOnCount++)
-                locationState is LocationState.Off -> SideEffect.AskToTurnLocationOn(askToTurnLocationOnCount++)
-                else -> SideEffect.UseBluetooth
+        return events
+            .onStart { emit(Unit) } // Kick things off as soon as sideEffects() is called
+            .flatMapLatest {
+                combine(bluetoothStates.states(), locationStates.states()) { bluetoothState, locationState ->
+                    val permissionsState = bluetoothPermissions.state()
+                    when {
+                        permissionsState is BluetoothPermissions.State.MissingPermissions ->
+                            SideEffect.RequestPermissions(permissionsState.permissions, requestPermissionsCount++)
+                        bluetoothState !is BluetoothState.On -> SideEffect.AskToTurnBluetoothOn(askToTurnBluetoothOnCount++)
+                        locationState is LocationState.Off -> SideEffect.AskToTurnLocationOn(askToTurnLocationOnCount++)
+                        else -> SideEffect.UseBluetooth
+                    }
+                }
             }
-        }
     }
 
     override suspend fun checkUsability() {
-        triggers.emit(Unit)
+        events.emit(Unit)
     }
 }

@@ -28,28 +28,21 @@ class DevicesViewModel(
     fun devices(): Flow<Resource<List<Device>>> = devices.filterNotNull()
 
     fun bluetoothUsability(): Flow<BluetoothUsability.SideEffect> = bluetoothUsability.sideEffects()
+        .onEach { sideEffect ->
+            if (sideEffect == BluetoothUsability.SideEffect.UseBluetooth) {
+                scanForDevices()
+            }
+        }
 
-    fun scanForDevices() {
+    private fun scanForDevices() {
         scanning?.cancel()
         scanning = repository.devices()
             .onEach { devices.value = it }
             .launchIn(viewModelScope)
     }
 
-    fun promptIfNeeded() {
-        viewModelScope.launch { bluetoothUsability.handleEvent(BluetoothUsability.Event.PromptIfNeeded) }
-    }
-
-    fun denyPermissions() {
-        viewModelScope.launch { bluetoothUsability.handleEvent(BluetoothUsability.Event.DenyPermissions) }
-    }
-
-    fun denyTurningBluetoothOn() {
-        viewModelScope.launch { bluetoothUsability.handleEvent(BluetoothUsability.Event.DenyTurningBluetoothOn) }
-    }
-
-    fun denyTurningLocationOn() {
-        viewModelScope.launch { bluetoothUsability.handleEvent(BluetoothUsability.Event.DenyTurningLocationOn) }
+    fun tryUsingBluetooth() {
+        viewModelScope.launch { bluetoothUsability.checkUsability() }
     }
 
     class Factory @Inject constructor(

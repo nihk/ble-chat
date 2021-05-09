@@ -44,20 +44,17 @@ class DevicesFragment @Inject constructor(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            val grantedAll = permissions.isNotEmpty() && permissions.all { it.value }
-            if (grantedAll) {
-                viewModel.promptIfNeeded()
-            } else {
-                viewModel.denyPermissions()
-            }
+        requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            viewModel.tryUsingBluetooth()
         }
         turnOnBluetoothLauncher = registerForActivityResult(TurnOnBluetooth()) { didTurnOn ->
             if (!didTurnOn) {
-                viewModel.denyTurningBluetoothOn()
+                viewModel.tryUsingBluetooth()
             } // else BluetoothStates will emit an On event, retriggering the ViewModel flow automatically.
         }
-        turnOnLocationLauncher = registerForActivityResult(OpenLocationSettings()) {}
+        turnOnLocationLauncher = registerForActivityResult(OpenLocationSettings()) {
+            // User navigating back to app will automatically check usability.
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,7 +65,7 @@ class DevicesFragment @Inject constructor(
         }
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
-        binding.retry.setOnClickListener { viewModel.promptIfNeeded() }
+        binding.retry.setOnClickListener { viewModel.tryUsingBluetooth() }
 
         viewModel.bluetoothUsability()
             // Keep restarting whenever onStart hits, so that the usability is as up to date as can be.
@@ -76,39 +73,46 @@ class DevicesFragment @Inject constructor(
             .onEach { sideEffect ->
                 cleanUpAnyStaleState()
                 when (sideEffect) {
-                    is BluetoothUsability.SideEffect.RequestPermissions -> requestPermissionsLauncher.launch(sideEffect.permissions.toTypedArray())
+                    is BluetoothUsability.SideEffect.RequestPermissions -> {
+                        if (sideEffect.numTimesRequestedPreviously == 0) {
+                            requestPermissionsLauncher.launch(sideEffect.permissions.toTypedArray())
+                        } else {
+                            showSnackbar(
+                                view = view,
+                                message = "You need BT permissions to continue, bro",
+                                buttonText = "Grant"
+                            ) {
+                                requestPermissionsLauncher.launch(sideEffect.permissions.toTypedArray())
+                            }
+                        }
+                    }
                     // todo: what about other BluetoothAdapter actions, e.g. ACTION_REQUEST_DISCOVERABLE?
-                    BluetoothUsability.SideEffect.AskToTurnBluetoothOn -> turnOnBluetoothLauncher.launch(Unit)
-                    BluetoothUsability.SideEffect.InformBluetoothRequired -> {
-                        showSnackbar(
-                            view = view,
-                            message = "You need BT to use this app",
-                            buttonText = "Turn on"
-                        ) {
-                            viewModel.promptIfNeeded()
+                    is BluetoothUsability.SideEffect.AskToTurnBluetoothOn -> {
+                        if (sideEffect.numTimesAskedPreviously == 0) {
+                            turnOnBluetoothLauncher.launch(Unit)
+                        } else {
+                            showSnackbar(
+                                view = view,
+                                message = "You need BT to use this app",
+                                buttonText = "Turn on"
+                            ) {
+                                turnOnBluetoothLauncher.launch(Unit)
+                            }
                         }
                     }
-                    BluetoothUsability.SideEffect.InformPermissionsRequired -> {
-                        // todo: deep link to settings permissions if can't prompt anymore?
-                        showSnackbar(
-                            view = view,
-                            message = "You need BT permissions to continue, bro",
-                            buttonText = "Grant"
-                        ) {
-                            viewModel.promptIfNeeded()
+                    is BluetoothUsability.SideEffect.AskToTurnLocationOn -> {
+                        if (sideEffect.numTimesAskedPreviously == 0) {
+                            showTurnOnLocationDialog()
+                        } else {
+                            showSnackbar(
+                                view = view,
+                                message = "You need Location on to use this app",
+                                buttonText = "Turn on"
+                            ) {
+                                turnOnLocationLauncher.launch(Unit)
+                            }
                         }
                     }
-                    BluetoothUsability.SideEffect.AskToTurnLocationOn -> showTurnOnLocationDialog()
-                    BluetoothUsability.SideEffect.InformLocationRequired -> {
-                        showSnackbar(
-                            view = view,
-                            message = "You need Location to use this app",
-                            buttonText = "Turn on"
-                        ) {
-                            viewModel.promptIfNeeded()
-                        }
-                    }
-                    BluetoothUsability.SideEffect.UseBluetooth -> viewModel.scanForDevices()
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -123,6 +127,7 @@ class DevicesFragment @Inject constructor(
 
                 // fixme: don't make this overlap with snackbar
                 binding.noResults.isVisible = resource !is Resource.Loading
+                    && resource.data.isNullOrEmpty()
                     && adapter.currentList.isEmpty()
 
                 if (!resource.data.isNullOrEmpty()) {
@@ -135,8 +140,7 @@ class DevicesFragment @Inject constructor(
                         message = resource.throwable.message.toString(),
                         buttonText = "Retry"
                     ) {
-                        // These are not recoverable.
-                        viewModel.promptIfNeeded()
+                        viewModel.tryUsingBluetooth()
                     }
                 }
             }
@@ -172,10 +176,10 @@ class DevicesFragment @Inject constructor(
                 turnOnLocationLauncher.launch(Unit)
             }
             .setNegativeButton("Cancel") { _, _ ->
-                viewModel.denyTurningLocationOn()
+                viewModel.tryUsingBluetooth()
             }
             .setOnCancelListener {
-                viewModel.denyTurningLocationOn()
+                viewModel.tryUsingBluetooth()
             }
             .create()
             .show()

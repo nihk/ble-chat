@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import nick.template.data.Resource
 import nick.template.data.bluetooth.AdvertisingRepository
+import nick.template.data.bluetooth.BluetoothAdvertiser
 import nick.template.data.bluetooth.BluetoothUsability
 import nick.template.data.bluetooth.ScanningRepository
 import nick.template.data.local.Device
@@ -28,10 +29,16 @@ class DevicesViewModel(
     private val devices = MutableStateFlow<Resource<List<Device>>?>(null)
     fun devices(): Flow<Resource<List<Device>>> = devices.filterNotNull()
 
-    private val scanningRequests = MutableSharedFlow<Unit>()
+    private val advertisingRequests = MutableSharedFlow<Unit>()
+    fun advertising(): Flow<BluetoothAdvertiser.StartResult> = advertisingRequests.flatMapLatest {
+        advertisingRepository.advertise()
+    }
+
+    private val useBluetoothRequests = MutableSharedFlow<Unit>()
 
     init {
-        scanningRequests
+        useBluetoothRequests
+            .onEach { advertisingRequests.emit(Unit) }
             .flatMapLatest { scanningRepository.scan() }
             .onEach { devices.value = it }
             .launchIn(viewModelScope)
@@ -40,7 +47,7 @@ class DevicesViewModel(
     fun bluetoothUsability(): Flow<BluetoothUsability.SideEffect> = bluetoothUsability.sideEffects()
         .onEach { sideEffect ->
             if (sideEffect == BluetoothUsability.SideEffect.UseBluetooth) {
-                scanningRequests.emit(Unit)
+                useBluetoothRequests.emit(Unit)
             }
         }
 

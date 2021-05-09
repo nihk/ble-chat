@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
 import nick.template.data.Resource
+import nick.template.data.bluetooth.BluetoothAdvertiser
 import nick.template.data.bluetooth.BluetoothUsability
 import nick.template.data.local.Device
 import nick.template.databinding.DevicesFragmentBinding
@@ -53,7 +54,7 @@ class DevicesFragment @Inject constructor(
             } // else BluetoothStates will emit an On event, retriggering the ViewModel flow automatically.
         }
         turnOnLocationLauncher = registerForActivityResult(OpenLocationSettings()) {
-            // User navigating back to app will automatically check usability.
+            // User navigating back to app will automatically resubscribe to evaluating Bluetooth usability.
         }
     }
 
@@ -66,6 +67,19 @@ class DevicesFragment @Inject constructor(
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
         binding.retry.setOnClickListener { viewModel.tryUsingBluetooth() }
+
+        // Hack: this has to be called before viewModel.bluetoothUsability(), otherwise it'll miss
+        // any SharedFlow emissions resulting from Bluetooth becoming usable.
+        viewModel.advertising()
+            // No point in advertising while the app is backgrounded.
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .onEach { startResult ->
+                when (startResult) {
+                    is BluetoothAdvertiser.StartResult.Error -> TODO("Show dialog?")
+                    is BluetoothAdvertiser.StartResult.Success -> {}
+                }
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.bluetoothUsability()
             // Keep restarting whenever onStart hits, so that the usability is as up to date as can be.
@@ -125,7 +139,7 @@ class DevicesFragment @Inject constructor(
                 binding.centerProgressBar.isVisible = resource is Resource.Loading
                     && resource.data.isNullOrEmpty()
 
-                // fixme: don't make this overlap with snackbar
+                // fixme: don't make this overlap with snackbar when there's an error + empty results
                 binding.noResults.isVisible = resource !is Resource.Loading
                     && resource.data.isNullOrEmpty()
                     && adapter.currentList.isEmpty()

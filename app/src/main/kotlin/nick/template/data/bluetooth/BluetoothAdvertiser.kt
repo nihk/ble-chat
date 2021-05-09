@@ -30,7 +30,11 @@ class AndroidBluetoothAdvertiser @Inject constructor(
     private val advertiseConfig: AdvertiseConfig
 ): BluetoothAdvertiser {
     override suspend fun start(): Flow<BluetoothAdvertiser.StartResult> = callbackFlow {
-        /** fixme: might need to call [bluetoothAdapter.isMultipleAdvertisementSupported] at some point **/
+        if (!bluetoothAdapter.isMultipleAdvertisementSupported) {
+            offerSafely(BluetoothAdvertiser.StartResult.Error(AdvertisingNotSupported()))
+            close()
+        }
+
         val advertiser = requireBle(bluetoothAdapter.bluetoothLeAdvertiser)
 
         val callback = object : AdvertiseCallback() {

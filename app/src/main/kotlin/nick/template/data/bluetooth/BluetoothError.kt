@@ -12,6 +12,10 @@ class ScanningTimedOut(val duration: Duration) : BluetoothError(
     message = "Scanning timed out after $duration"
 )
 
+class AdvertisingNotSupported : BluetoothError(
+    message = "Bluetooth advertising is not supported on this device"
+)
+
 internal fun Int.toBluetoothError(): BluetoothError {
     return when (this) {
         else -> UnknownErrorCode(this)

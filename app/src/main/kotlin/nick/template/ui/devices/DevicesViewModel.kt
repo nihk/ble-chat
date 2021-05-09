@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import nick.template.data.Resource
+import nick.template.data.bluetooth.AdvertisingRepository
 import nick.template.data.bluetooth.BluetoothUsability
 import nick.template.data.bluetooth.ScanningRepository
 import nick.template.data.local.Device
@@ -21,7 +22,8 @@ import javax.inject.Inject
 
 class DevicesViewModel(
     private val bluetoothUsability: BluetoothUsability,
-    private val repository: ScanningRepository
+    private val scanningRepository: ScanningRepository,
+    private val advertisingRepository: AdvertisingRepository
 ) : ViewModel() {
     private val devices = MutableStateFlow<Resource<List<Device>>?>(null)
     fun devices(): Flow<Resource<List<Device>>> = devices.filterNotNull()
@@ -30,7 +32,7 @@ class DevicesViewModel(
 
     init {
         scanningRequests
-            .flatMapLatest { repository.scan() }
+            .flatMapLatest { scanningRepository.scan() }
             .onEach { devices.value = it }
             .launchIn(viewModelScope)
     }
@@ -48,7 +50,8 @@ class DevicesViewModel(
 
     class Factory @Inject constructor(
         private val bluetoothUsability: BluetoothUsability,
-        private val repository: ScanningRepository
+        private val scanningRepository: ScanningRepository,
+        private val advertisingRepository: AdvertisingRepository
     ) {
         fun create(owner: SavedStateRegistryOwner): AbstractSavedStateViewModelFactory {
             return object : AbstractSavedStateViewModelFactory(owner, null) {
@@ -58,7 +61,11 @@ class DevicesViewModel(
                     handle: SavedStateHandle
                 ): T {
                     @Suppress("UNCHECKED_CAST")
-                    return DevicesViewModel(bluetoothUsability, repository) as T
+                    return DevicesViewModel(
+                        bluetoothUsability,
+                        scanningRepository,
+                        advertisingRepository
+                    ) as T
                 }
             }
         }

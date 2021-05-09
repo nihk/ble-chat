@@ -17,7 +17,7 @@ data class Advertisement(
 )
 
 interface BluetoothAdvertiser {
-    suspend fun start(): Flow<StartResult>
+    fun start(): Flow<StartResult>
 
     sealed class StartResult {
         data class Success(val advertisement: Advertisement) : StartResult()
@@ -29,7 +29,7 @@ class AndroidBluetoothAdvertiser @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
     private val advertisingConfig: AdvertisingConfig
 ): BluetoothAdvertiser {
-    override suspend fun start(): Flow<BluetoothAdvertiser.StartResult> = callbackFlow {
+    override fun start(): Flow<BluetoothAdvertiser.StartResult> = callbackFlow {
         if (!bluetoothAdapter.isMultipleAdvertisementSupported) {
             offerSafely(BluetoothAdvertiser.StartResult.Error(AdvertisingNotSupported()))
             close()

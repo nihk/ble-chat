@@ -18,6 +18,7 @@ import nick.template.data.CurrentTime
 import nick.template.data.LocationStates
 import nick.template.data.SystemCurrentTime
 import nick.template.data.bluetooth.AdvertisingConfig
+import nick.template.data.bluetooth.AdvertisingRepository
 import nick.template.data.bluetooth.AndroidBluetoothAdvertiser
 import nick.template.data.bluetooth.AndroidBluetoothConnector
 import nick.template.data.bluetooth.AndroidBluetoothPermissions
@@ -39,6 +40,7 @@ import nick.template.data.bluetooth.BluetoothAdvertiser
 import nick.template.data.bluetooth.BluetoothUuids
 import nick.template.data.bluetooth.ChatBluetoothUuids
 import nick.template.data.bluetooth.DefaultAdvertisingConfig
+import nick.template.data.bluetooth.DefaultAdvertisingRepository
 import nick.template.data.bluetooth.DefaultScanningRepository
 import nick.template.data.bluetooth.DefaultDeviceCacheThreshold
 import nick.template.data.bluetooth.DefaultScanningTimeout
@@ -162,4 +164,7 @@ abstract class AppModule {
 
     @Binds
     abstract fun advertisingConfig(advertisingConfig: DefaultAdvertisingConfig): AdvertisingConfig
+
+    @Binds
+    abstract fun advertisingRepository(advertisingRepository: DefaultAdvertisingRepository): AdvertisingRepository
 }

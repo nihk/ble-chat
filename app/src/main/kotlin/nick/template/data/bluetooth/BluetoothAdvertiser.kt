@@ -27,7 +27,7 @@ interface BluetoothAdvertiser {
 
 class AndroidBluetoothAdvertiser @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
-    private val advertiseConfig: AdvertiseConfig
+    private val advertisingConfig: AdvertisingConfig
 ): BluetoothAdvertiser {
     override suspend fun start(): Flow<BluetoothAdvertiser.StartResult> = callbackFlow {
         if (!bluetoothAdapter.isMultipleAdvertisementSupported) {
@@ -48,8 +48,8 @@ class AndroidBluetoothAdvertiser @Inject constructor(
         }
 
         advertiser.startAdvertising(
-            advertiseConfig.settings,
-            advertiseConfig.data,
+            advertisingConfig.settings,
+            advertisingConfig.data,
             callback
         )
 

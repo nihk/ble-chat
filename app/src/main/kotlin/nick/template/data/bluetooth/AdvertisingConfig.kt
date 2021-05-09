@@ -5,17 +5,15 @@ import android.bluetooth.le.AdvertiseSettings
 import android.os.ParcelUuid
 import javax.inject.Inject
 
-interface AdvertiseConfig {
+interface AdvertisingConfig {
     val settings: AdvertiseSettings
     val data: AdvertiseData
 }
 
-class DefaultAdvertiseConfig @Inject constructor(
+class DefaultAdvertisingConfig @Inject constructor(
     bluetoothUuids: BluetoothUuids
-) : AdvertiseConfig {
+) : AdvertisingConfig {
     override val settings: AdvertiseSettings = AdvertiseSettings.Builder()
-        .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-        .setTimeout(0)
         .build()
 
     override val data: AdvertiseData = AdvertiseData.Builder()

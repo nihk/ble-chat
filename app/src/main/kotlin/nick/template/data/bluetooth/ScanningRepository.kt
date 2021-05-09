@@ -11,7 +11,7 @@ import nick.template.data.local.DeviceDao
 import javax.inject.Inject
 
 interface ScanningRepository {
-    fun devices(): Flow<Resource<List<Device>>>
+    fun scan(): Flow<Resource<List<Device>>>
 }
 
 class DefaultScanningRepository @Inject constructor(
@@ -19,7 +19,7 @@ class DefaultScanningRepository @Inject constructor(
     private val deviceDao: DeviceDao,
     private val deviceCacheThreshold: DeviceCacheThreshold
 ) : ScanningRepository {
-    override fun devices(): Flow<Resource<List<Device>>> = flow {
+    override fun scan(): Flow<Resource<List<Device>>> = flow {
         emit(Resource.Loading())
         emit(Resource.Loading(deviceDao.selectAll().first()))
 

@@ -14,10 +14,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import nick.template.data.Resource
-import nick.template.data.bluetooth.AdvertisingRepository
-import nick.template.data.bluetooth.BluetoothAdvertiser
-import nick.template.data.bluetooth.BluetoothUsability
-import nick.template.data.bluetooth.ScanningRepository
+import nick.template.data.bluetooth.advertising.AdvertisingRepository
+import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
+import nick.template.data.bluetooth.usability.BluetoothUsability
+import nick.template.data.bluetooth.scanning.ScanningRepository
 import nick.template.data.local.Device
 import javax.inject.Inject
 

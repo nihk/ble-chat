@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package nick.template.data.bluetooth.advertising
 
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

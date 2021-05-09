@@ -1,7 +1,8 @@
-package nick.template.data.bluetooth
+package nick.template.data.bluetooth.scanning
 
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
+import nick.template.data.bluetooth.ScanningTimedOut
 import javax.inject.Inject
 
 interface OneShotBluetoothScanner {

@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package nick.template.data.bluetooth.scanning
 
 import javax.inject.Inject
 import kotlin.time.Duration

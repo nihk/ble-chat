@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package nick.template.data.bluetooth.scanning
 
 import nick.template.data.CurrentTime
 import javax.inject.Inject

@@ -1,8 +1,9 @@
-package nick.template.data.bluetooth
+package nick.template.data.bluetooth.advertising
 
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.os.ParcelUuid
+import nick.template.data.bluetooth.BluetoothUuids
 import javax.inject.Inject
 
 interface AdvertisingConfig {

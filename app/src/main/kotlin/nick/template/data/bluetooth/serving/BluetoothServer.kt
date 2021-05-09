@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package nick.template.data.bluetooth.serving
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
@@ -43,8 +43,10 @@ class AndroidBluetoothServer @Inject constructor(
                 status: Int,
                 newState: Int
             ) {
-                val event = if (status == BluetoothGatt.GATT_SUCCESS
-                    && newState == BluetoothGatt.STATE_CONNECTED) {
+                val event = if (
+                    status == BluetoothGatt.GATT_SUCCESS
+                    && newState == BluetoothGatt.STATE_CONNECTED
+                ) {
                     BluetoothServer.Event.Connected(device.toDevice())
                 } else {
                     BluetoothServer.Event.Disconnected

@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package nick.template.data.bluetooth.scanning
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll

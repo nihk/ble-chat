@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package nick.template.data.bluetooth.scanning
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
@@ -7,6 +7,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import nick.template.data.CurrentTime
+import nick.template.data.bluetooth.BluetoothError
+import nick.template.data.bluetooth.requireBle
+import nick.template.data.bluetooth.toBluetoothError
 import nick.template.data.local.Device
 import nick.template.data.offerSafely
 import javax.inject.Inject

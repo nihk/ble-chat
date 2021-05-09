@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
 import nick.template.data.Resource
-import nick.template.data.bluetooth.BluetoothAdvertiser
-import nick.template.data.bluetooth.BluetoothUsability
+import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
+import nick.template.data.bluetooth.usability.BluetoothUsability
 import nick.template.data.local.Device
 import nick.template.databinding.DevicesFragmentBinding
 import nick.template.ui.OpenLocationSettings

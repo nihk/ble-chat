@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package nick.template.data.bluetooth.usability
 
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver

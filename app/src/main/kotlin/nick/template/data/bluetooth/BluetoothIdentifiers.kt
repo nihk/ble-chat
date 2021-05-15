@@ -5,27 +5,29 @@ import java.util.UUID
 import javax.inject.Inject
 import kotlin.random.Random
 
-interface BluetoothUuids {
+interface BluetoothIdentifiers {
     val service: UUID
     val message: UUID
-    val confirmConnection: UUID
     val serviceData: ByteArray
 }
 
-class AppBluetoothUuids @Inject constructor(
+class AppBluetoothIdentifiers @Inject constructor(
     private val sharedPreferences: SharedPreferences,
     private val serviceDataConfig: ServiceDataConfig
-) : BluetoothUuids {
+) : BluetoothIdentifiers {
     override val service: UUID = UUID.fromString("0000b81d-0000-1000-8000-00805f9b34fb")
     override val message: UUID = UUID.fromString("7db3e235-3608-41f3-a03c-955fcbd2ea4b")
-    // todo: what is this even for?
-    override val confirmConnection: UUID = UUID.fromString("36d4dc5c-814b-4097-a5a6-b93b39085928")
     override val serviceData: ByteArray = run {
-        sharedPreferences.getString("service_data", null)?.encodeToByteArray()
-            ?: Random.nextBytes(ByteArray(serviceDataConfig.byteSize)).also { bytes: ByteArray ->
+        // fixme: need to test this encoding/decoding works as i want it to
+        sharedPreferences.getString(KEY_SERVICE_DATA, null)?.toByteArray(Charsets.ISO_8859_1)
+            ?: Random.nextBytes(ByteArray(serviceDataConfig.byteSize)).also { bytes ->
                 sharedPreferences.edit()
-                    .putString("servie_data", bytes.decodeToString())
+                    .putString(KEY_SERVICE_DATA, String(bytes, Charsets.ISO_8859_1))
                     .apply()
             }
+    }
+
+    companion object {
+        private const val KEY_SERVICE_DATA = "service_data"
     }
 }

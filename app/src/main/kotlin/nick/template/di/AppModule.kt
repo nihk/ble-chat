@@ -19,11 +19,11 @@ import nick.template.data.AndroidLocationStates
 import nick.template.data.CurrentTime
 import nick.template.data.LocationStates
 import nick.template.data.SystemCurrentTime
-import nick.template.data.bluetooth.AppBluetoothUuids
-import nick.template.data.bluetooth.BluetoothConversationRepository
-import nick.template.data.bluetooth.BluetoothUuids
+import nick.template.data.bluetooth.AppBluetoothIdentifiers
+import nick.template.ui.conversation.BluetoothConversationRepository
+import nick.template.data.bluetooth.BluetoothIdentifiers
 import nick.template.data.bluetooth.CharacteristicParser
-import nick.template.data.bluetooth.ConversationRepository
+import nick.template.ui.conversation.ConversationRepository
 import nick.template.data.bluetooth.DefaultServiceDataConfig
 import nick.template.data.bluetooth.IdentifiableCharacteristicParser
 import nick.template.data.bluetooth.ServiceDataConfig
@@ -74,23 +74,17 @@ abstract class AppModule {
         }
 
         @Provides
-        fun bluetoothGattService(uuids: BluetoothUuids): BluetoothGattService {
+        fun bluetoothGattService(identifiers: BluetoothIdentifiers): BluetoothGattService {
             val messageCharacteristic = BluetoothGattCharacteristic(
-                uuids.message,
-                BluetoothGattCharacteristic.PROPERTY_WRITE,
-                BluetoothGattCharacteristic.PERMISSION_WRITE
-            )
-            val confirmCharacteristic = BluetoothGattCharacteristic(
-                uuids.confirmConnection,
+                identifiers.message,
                 BluetoothGattCharacteristic.PROPERTY_WRITE,
                 BluetoothGattCharacteristic.PERMISSION_WRITE
             )
             return BluetoothGattService(
-                uuids.service,
+                identifiers.service,
                 BluetoothGattService.SERVICE_TYPE_PRIMARY
             ).apply {
                 addCharacteristic(messageCharacteristic)
-                addCharacteristic(confirmCharacteristic)
             }
         }
 
@@ -166,7 +160,7 @@ abstract class AppModule {
     abstract fun bluetoothServer(bluetoothServer: AndroidBluetoothServer): BluetoothServer
 
     @Binds
-    abstract fun bluetoothUuids(bluetoothUuids: AppBluetoothUuids): BluetoothUuids
+    abstract fun bluetoothUuids(bluetoothUuids: AppBluetoothIdentifiers): BluetoothIdentifiers
 
     @Binds
     abstract fun bluetoothAdvertiser(bluetoothAdvertiser: AndroidBluetoothAdvertiser): BluetoothAdvertiser

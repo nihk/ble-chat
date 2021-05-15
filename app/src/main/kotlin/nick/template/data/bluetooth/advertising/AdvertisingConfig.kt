@@ -4,7 +4,7 @@ import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.os.ParcelUuid
 import javax.inject.Inject
-import nick.template.data.bluetooth.BluetoothUuids
+import nick.template.data.bluetooth.BluetoothIdentifiers
 
 interface AdvertisingConfig {
     val settings: AdvertiseSettings
@@ -12,17 +12,17 @@ interface AdvertisingConfig {
 }
 
 class DefaultAdvertisingConfig @Inject constructor(
-    private val bluetoothUuids: BluetoothUuids
+    private val bluetoothIdentifiers: BluetoothIdentifiers
 ) : AdvertisingConfig {
     override val settings: AdvertiseSettings = AdvertiseSettings.Builder()
         .build()
 
     override val data: AdvertiseData
         get() {
-            val parcelUuid = ParcelUuid(bluetoothUuids.service)
+            val parcelUuid = ParcelUuid(bluetoothIdentifiers.service)
             return AdvertiseData.Builder()
                 .addServiceUuid(parcelUuid)
-                .addServiceData(parcelUuid, bluetoothUuids.serviceData)
+                .addServiceData(parcelUuid, bluetoothIdentifiers.serviceData)
                 .setIncludeDeviceName(true)
                 .build()
         }

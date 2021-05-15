@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package nick.template.ui.conversation
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow

@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import nick.template.data.Resource
 import nick.template.data.bluetooth.usability.BluetoothUsability
-import nick.template.data.bluetooth.ConversationRepository
 import nick.template.data.local.Message
 import javax.inject.Inject
 

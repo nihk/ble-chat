@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.emptyFlow
 import nick.template.data.Resource
 import nick.template.data.bluetooth.connecting.BluetoothConnector
 import nick.template.data.local.Message
-import nick.template.data.local.MessageDao
 import javax.inject.Inject
 
 interface ConversationRepository {
@@ -13,8 +12,7 @@ interface ConversationRepository {
 }
 
 class BluetoothConversationRepository @Inject constructor(
-    private val bluetoothConnector: BluetoothConnector,
-    private val messageDao: MessageDao
+    private val bluetoothConnector: BluetoothConnector
 ) : ConversationRepository {
 
     override fun messages(): Flow<Resource<List<Message>>> {

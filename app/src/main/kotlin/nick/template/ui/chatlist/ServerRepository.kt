@@ -9,8 +9,8 @@ import nick.template.data.CurrentTime
 import nick.template.data.bluetooth.BluetoothError
 import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
 import nick.template.data.bluetooth.serving.BluetoothServer
+import nick.template.data.local.DeviceAndMessagesDao
 import nick.template.data.local.Message
-import nick.template.data.local.MessageDao
 
 interface ServerRepository {
     fun events(): Flow<Event>
@@ -24,7 +24,7 @@ interface ServerRepository {
 class BroadcastingServerRepository @Inject constructor(
     private val advertiser: BluetoothAdvertiser,
     private val server: BluetoothServer,
-    private val messageDao: MessageDao,
+    private val dao: DeviceAndMessagesDao,
     private val currentTime: CurrentTime
 ) : ServerRepository {
 
@@ -38,7 +38,7 @@ class BroadcastingServerRepository @Inject constructor(
                         text = event.message,
                         timestamp = currentTime.millis()
                     )
-                    messageDao.insert(message)
+                    dao.insert(message)
                 }
             }
 

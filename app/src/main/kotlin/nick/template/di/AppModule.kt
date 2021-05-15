@@ -14,6 +14,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 import nick.template.data.AndroidLocationStates
 import nick.template.data.CurrentTime
 import nick.template.data.LocationStates
@@ -50,8 +51,6 @@ import nick.template.data.bluetooth.usability.BluetoothUsability
 import nick.template.data.bluetooth.usability.DefaultBluetoothUsability
 import nick.template.data.local.AppDatabase
 import nick.template.data.local.DeviceAndMessagesDao
-import nick.template.data.local.DeviceDao
-import nick.template.data.local.MessageDao
 import nick.template.ui.chatlist.BroadcastingServerRepository
 import nick.template.ui.chatlist.ChatListRepository
 import nick.template.ui.chatlist.ScanningChatListRepository
@@ -98,6 +97,7 @@ abstract class AppModule {
             return application.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         }
 
+        @Singleton
         @Provides
         fun appDatabase(application: Application): AppDatabase {
             return Room.databaseBuilder(
@@ -105,16 +105,6 @@ abstract class AppModule {
                 AppDatabase::class.java,
                 "app_database.db"
             ).build()
-        }
-
-        @Provides
-        fun deviceDao(appDatabase: AppDatabase): DeviceDao {
-            return appDatabase.deviceDao()
-        }
-
-        @Provides
-        fun messageDao(appDatabase: AppDatabase): MessageDao {
-            return appDatabase.messageDao()
         }
 
         @Provides

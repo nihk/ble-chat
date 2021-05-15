@@ -68,6 +68,7 @@ class ChatListFragment @Inject constructor(
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
         binding.retry.setOnClickListener { viewModel.tryUsingBluetooth() }
+        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.tryUsingBluetooth() }
 
         // Hack: this has to be called before viewModel.bluetoothUsability(), otherwise it'll miss
         // any SharedFlow emissions resulting from Bluetooth becoming usable.
@@ -134,6 +135,9 @@ class ChatListFragment @Inject constructor(
 
         viewModel.items()
             .onEach { resource: Resource<List<ChatListItem>> ->
+                if (resource !is Resource.Loading) {
+                    binding.swipeRefreshLayout.isRefreshing = false
+                }
                 // fixme: improve readability here
                 binding.topProgressBar.isVisible = resource is Resource.Loading
                     && !resource.data.isNullOrEmpty()

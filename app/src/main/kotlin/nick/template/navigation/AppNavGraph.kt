@@ -4,11 +4,11 @@ object AppNavGraph {
     val id = IdGenerator.next()
 
     object Destinations {
-        val devices = IdGenerator.next()
-        val chat = IdGenerator.next()
+        val chatList = IdGenerator.next()
+        val conversation = IdGenerator.next()
     }
 
     object Actions {
-        val toChat = IdGenerator.next()
+        val toConversation = IdGenerator.next()
     }
 }

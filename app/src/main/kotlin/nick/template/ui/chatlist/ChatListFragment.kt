@@ -1,4 +1,4 @@
-package nick.template.ui.devices
+package nick.template.ui.chatlist
 
 import android.os.Bundle
 import android.view.View
@@ -13,18 +13,19 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
+import javax.inject.Inject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
 import nick.template.data.Resource
 import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
 import nick.template.data.bluetooth.usability.BluetoothUsability
-import nick.template.data.local.Device
-import nick.template.databinding.DevicesFragmentBinding
+import nick.template.databinding.ChatListFragmentBinding
 import nick.template.ui.OpenLocationSettings
 import nick.template.ui.TurnOnBluetooth
-import javax.inject.Inject
 
+// todo: this screen should listen for messages, and set the most recent on on the devices list
+//  this will require joining Message and Device tables.
 // todo: bluetooth chat interface
 //  check out how other repositories are handling things like:
 //  * storage of historical messages
@@ -32,12 +33,12 @@ import javax.inject.Inject
 // todo: add refresh menu button
 // todo: automated espresso tests for all these states
 // todo: move all BLE related code into its own gradle module
-class DevicesFragment @Inject constructor(
-    private val vmFactory: DevicesViewModel.Factory,
-    private val openChatCallback: OpenChatCallback
-) : Fragment(R.layout.devices_fragment) {
+class ChatListFragment @Inject constructor(
+    private val vmFactory: ChatListViewModel.Factory,
+    private val openConversationCallback: OpenConversationCallback
+) : Fragment(R.layout.chat_list_fragment) {
 
-    private val viewModel: DevicesViewModel by viewModels { vmFactory.create(this) }
+    private val viewModel: ChatListViewModel by viewModels { vmFactory.create(this) }
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var turnOnBluetoothLauncher: ActivityResultLauncher<Unit>
     private lateinit var turnOnLocationLauncher: ActivityResultLauncher<Unit>
@@ -59,10 +60,10 @@ class DevicesFragment @Inject constructor(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val binding = DevicesFragmentBinding.bind(view)
-        val adapter = DeviceAdapter { device ->
+        val binding = ChatListFragmentBinding.bind(view)
+        val adapter = ChatListItemAdapter { item ->
             cleanUpAnyStaleState()
-            openChatCallback.with(device)
+            openConversationCallback.with(item)
         }
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
@@ -131,8 +132,8 @@ class DevicesFragment @Inject constructor(
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        viewModel.devices()
-            .onEach { resource: Resource<List<Device>> ->
+        viewModel.items()
+            .onEach { resource: Resource<List<ChatListItem>> ->
                 // fixme: improve readability here
                 binding.topProgressBar.isVisible = resource is Resource.Loading
                     && !resource.data.isNullOrEmpty()

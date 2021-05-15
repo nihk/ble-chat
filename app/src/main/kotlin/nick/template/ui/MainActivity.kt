@@ -10,8 +10,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import nick.template.R
 import nick.template.di.MainEntryPoint
 import nick.template.navigation.AppNavGraph
-import nick.template.ui.chat.ChatFragment
-import nick.template.ui.devices.DevicesFragment
+import nick.template.ui.conversation.ConversationFragment
+import nick.template.ui.chatlist.ChatListFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.main_activity) {
@@ -26,15 +26,15 @@ class MainActivity : AppCompatActivity(R.layout.main_activity) {
     private fun createNavGraph(navController: NavController) {
         navController.graph = navController.createGraph(
             id = AppNavGraph.id,
-            startDestination = AppNavGraph.Destinations.devices
+            startDestination = AppNavGraph.Destinations.chatList
         ) {
-            fragment<DevicesFragment>(AppNavGraph.Destinations.devices) {
-                action(AppNavGraph.Actions.toChat) {
-                    destinationId = AppNavGraph.Destinations.chat
+            fragment<ChatListFragment>(AppNavGraph.Destinations.chatList) {
+                action(AppNavGraph.Actions.toConversation) {
+                    destinationId = AppNavGraph.Destinations.conversation
                     defaultAnimations()
                 }
             }
-            fragment<ChatFragment>(AppNavGraph.Destinations.chat)
+            fragment<ConversationFragment>(AppNavGraph.Destinations.conversation)
         }
     }
 

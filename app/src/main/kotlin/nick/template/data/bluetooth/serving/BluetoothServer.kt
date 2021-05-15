@@ -33,10 +33,9 @@ class AndroidBluetoothServer @Inject constructor(
     private val bluetoothGattService: BluetoothGattService,
     private val currentTime: CurrentTime
 ) : BluetoothServer {
+    private var gattServer: BluetoothGattServer? = null
 
     override fun events(): Flow<BluetoothServer.Event> = callbackFlow {
-        var gattServer: BluetoothGattServer? = null
-
         val callback = object : BluetoothGattServerCallback() {
             override fun onConnectionStateChange(
                 device: BluetoothDevice,
@@ -75,9 +74,13 @@ class AndroidBluetoothServer @Inject constructor(
             addService(bluetoothGattService)
         }
 
-        awaitClose { gattServer?.close() }
+        awaitClose {
+            gattServer?.close()
+            gattServer = null
+        }
     }
 
+    // fixme: lastSeen is pretty useless here. Perhaps don't use Device here
     private fun BluetoothDevice.toDevice(): Device {
         return Device(
             address = address,

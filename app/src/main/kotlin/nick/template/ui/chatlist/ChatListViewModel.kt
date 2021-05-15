@@ -1,10 +1,11 @@
-package nick.template.ui.devices
+package nick.template.ui.chatlist
 
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,17 +18,14 @@ import nick.template.data.Resource
 import nick.template.data.bluetooth.advertising.AdvertisingRepository
 import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
 import nick.template.data.bluetooth.usability.BluetoothUsability
-import nick.template.data.bluetooth.scanning.ScanningRepository
-import nick.template.data.local.Device
-import javax.inject.Inject
 
-class DevicesViewModel(
+class ChatListViewModel(
     private val bluetoothUsability: BluetoothUsability,
-    private val scanningRepository: ScanningRepository,
+    private val chatListRepository: ChatListRepository,
     private val advertisingRepository: AdvertisingRepository
 ) : ViewModel() {
-    private val devices = MutableStateFlow<Resource<List<Device>>?>(null)
-    fun devices(): Flow<Resource<List<Device>>> = devices.filterNotNull()
+    private val items = MutableStateFlow<Resource<List<ChatListItem>>?>(null)
+    fun items(): Flow<Resource<List<ChatListItem>>> = items.filterNotNull()
 
     private val advertisingRequests = MutableSharedFlow<Unit>()
     fun advertising(): Flow<BluetoothAdvertiser.StartResult> = advertisingRequests.flatMapLatest {
@@ -39,8 +37,8 @@ class DevicesViewModel(
     init {
         useBluetoothRequests
             .onEach { advertisingRequests.emit(Unit) }
-            .flatMapLatest { scanningRepository.scan() }
-            .onEach { devices.value = it }
+            .flatMapLatest { chatListRepository.items() }
+            .onEach { items.value = it }
             .launchIn(viewModelScope)
     }
 
@@ -57,7 +55,7 @@ class DevicesViewModel(
 
     class Factory @Inject constructor(
         private val bluetoothUsability: BluetoothUsability,
-        private val scanningRepository: ScanningRepository,
+        private val chatListRepository: ChatListRepository,
         private val advertisingRepository: AdvertisingRepository
     ) {
         fun create(owner: SavedStateRegistryOwner): AbstractSavedStateViewModelFactory {
@@ -68,9 +66,9 @@ class DevicesViewModel(
                     handle: SavedStateHandle
                 ): T {
                     @Suppress("UNCHECKED_CAST")
-                    return DevicesViewModel(
+                    return ChatListViewModel(
                         bluetoothUsability,
-                        scanningRepository,
+                        chatListRepository,
                         advertisingRepository
                     ) as T
                 }

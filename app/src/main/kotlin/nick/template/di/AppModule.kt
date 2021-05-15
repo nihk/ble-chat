@@ -29,7 +29,6 @@ import nick.template.data.bluetooth.scanning.AppScanningConfig
 import nick.template.data.bluetooth.connecting.BluetoothConnector
 import nick.template.data.bluetooth.BluetoothConversationRepository
 import nick.template.data.bluetooth.usability.BluetoothPermissions
-import nick.template.data.bluetooth.scanning.ScanningRepository
 import nick.template.data.bluetooth.scanning.BluetoothScanner
 import nick.template.data.bluetooth.serving.BluetoothServer
 import nick.template.data.bluetooth.usability.BluetoothStates
@@ -41,7 +40,6 @@ import nick.template.data.bluetooth.BluetoothUuids
 import nick.template.data.bluetooth.AppBluetoothUuids
 import nick.template.data.bluetooth.advertising.DefaultAdvertisingConfig
 import nick.template.data.bluetooth.advertising.DefaultAdvertisingRepository
-import nick.template.data.bluetooth.scanning.DefaultScanningRepository
 import nick.template.data.bluetooth.scanning.DefaultDeviceCacheThreshold
 import nick.template.data.bluetooth.scanning.DefaultScanningTimeout
 import nick.template.data.bluetooth.scanning.DeviceCacheThreshold
@@ -50,8 +48,11 @@ import nick.template.data.bluetooth.scanning.OneShotBluetoothScanner
 import nick.template.data.bluetooth.scanning.ScanningConfig
 import nick.template.data.bluetooth.scanning.ScanningTimeout
 import nick.template.data.local.AppDatabase
+import nick.template.data.local.ChatListItemDao
 import nick.template.data.local.DeviceDao
 import nick.template.data.local.MessageDao
+import nick.template.ui.chatlist.BluetoothChatListRepository
+import nick.template.ui.chatlist.ChatListRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -112,10 +113,15 @@ abstract class AppModule {
         fun messageDao(appDatabase: AppDatabase): MessageDao {
             return appDatabase.messageDao()
         }
+
+        @Provides
+        fun chatListItemDao(appDatabase: AppDatabase): ChatListItemDao {
+            return appDatabase.chatListItemDao()
+        }
     }
 
     @Binds
-    abstract fun scanningRepository(repository: DefaultScanningRepository): ScanningRepository
+    abstract fun chatListRepository(repository: BluetoothChatListRepository): ChatListRepository
 
     @Binds
     abstract fun conversationRepository(repository: BluetoothConversationRepository): ConversationRepository

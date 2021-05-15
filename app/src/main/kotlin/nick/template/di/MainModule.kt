@@ -14,10 +14,10 @@ import dagger.hilt.android.components.ActivityComponent
 import dagger.multibindings.IntoMap
 import nick.template.R
 import nick.template.ui.AppFragmentFactory
-import nick.template.ui.chat.ChatFragment
-import nick.template.ui.devices.DefaultOpenChatCallback
-import nick.template.ui.devices.DevicesFragment
-import nick.template.ui.devices.OpenChatCallback
+import nick.template.ui.conversation.ConversationFragment
+import nick.template.ui.chatlist.DefaultOpenConversationCallback
+import nick.template.ui.chatlist.ChatListFragment
+import nick.template.ui.chatlist.OpenConversationCallback
 
 @Module
 @InstallIn(ActivityComponent::class)
@@ -34,17 +34,17 @@ abstract class MainModule {
 
     @Binds
     @IntoMap
-    @FragmentKey(DevicesFragment::class)
-    abstract fun devicesFragment(devicesFragment: DevicesFragment): Fragment
+    @FragmentKey(ChatListFragment::class)
+    abstract fun chatListFragment(chatListFragment: ChatListFragment): Fragment
 
     @Binds
     @IntoMap
-    @FragmentKey(ChatFragment::class)
-    abstract fun chatFragment(chatFragment: ChatFragment): Fragment
+    @FragmentKey(ConversationFragment::class)
+    abstract fun conversationFragment(conversationFragment: ConversationFragment): Fragment
 
     @Binds
     abstract fun fragmentFactory(appFragmentFactory: AppFragmentFactory): FragmentFactory
 
     @Binds
-    abstract fun openChatCallback(openChatCallback: DefaultOpenChatCallback): OpenChatCallback
+    abstract fun openChatCallback(openChatCallback: DefaultOpenConversationCallback): OpenConversationCallback
 }

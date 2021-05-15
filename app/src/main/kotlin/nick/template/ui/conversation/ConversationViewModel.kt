@@ -1,4 +1,4 @@
-package nick.template.ui.chat
+package nick.template.ui.conversation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -11,7 +11,7 @@ import nick.template.data.bluetooth.ConversationRepository
 import nick.template.data.local.Message
 import javax.inject.Inject
 
-class ChatViewModel(
+class ConversationViewModel(
     private val bluetoothUsability: BluetoothUsability,
     private val conversationRepository: ConversationRepository
 ) : ViewModel() {
@@ -27,7 +27,7 @@ class ChatViewModel(
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")
-            return ChatViewModel(bluetoothUsability, conversationRepository) as T
+            return ConversationViewModel(bluetoothUsability, conversationRepository) as T
         }
     }
 }

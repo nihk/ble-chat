@@ -1,8 +1,8 @@
-package nick.template.ui.devices
+package nick.template.ui.chatlist
 
 import org.junit.Test
 
-class DevicesFragmentTest {
+class ChatListFragmentTest {
     @Test
     fun permissionsWereRequested_whenNoneWereGranted() {
 

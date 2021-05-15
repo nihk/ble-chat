@@ -3,8 +3,8 @@ package nick.template.data.bluetooth.advertising
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.os.ParcelUuid
-import nick.template.data.bluetooth.BluetoothUuids
 import javax.inject.Inject
+import nick.template.data.bluetooth.BluetoothUuids
 
 interface AdvertisingConfig {
     val settings: AdvertiseSettings
@@ -12,13 +12,18 @@ interface AdvertisingConfig {
 }
 
 class DefaultAdvertisingConfig @Inject constructor(
-    bluetoothUuids: BluetoothUuids
+    private val bluetoothUuids: BluetoothUuids
 ) : AdvertisingConfig {
     override val settings: AdvertiseSettings = AdvertiseSettings.Builder()
         .build()
 
-    override val data: AdvertiseData = AdvertiseData.Builder()
-        .addServiceUuid(ParcelUuid(bluetoothUuids.service))
-        .setIncludeDeviceName(true)
-        .build()
+    override val data: AdvertiseData
+        get() {
+            val parcelUuid = ParcelUuid(bluetoothUuids.service)
+            return AdvertiseData.Builder()
+                .addServiceUuid(parcelUuid)
+                .addServiceData(parcelUuid, bluetoothUuids.serviceData)
+                .setIncludeDeviceName(true)
+                .build()
+        }
 }

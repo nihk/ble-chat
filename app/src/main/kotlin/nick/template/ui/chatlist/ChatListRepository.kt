@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import nick.template.data.CurrentTime
 import nick.template.data.Resource
 import nick.template.data.bluetooth.scanning.BluetoothScanner
 import nick.template.data.bluetooth.scanning.DeviceCacheThreshold
@@ -15,7 +14,6 @@ import nick.template.data.local.DeviceAndMessages
 import nick.template.data.local.DeviceAndMessagesDao
 import nick.template.data.local.DeviceDao
 import nick.template.data.local.Message
-import nick.template.data.local.MessageDao
 
 interface ChatListRepository {
     fun items(): Flow<Resource<List<ChatListItem>>>
@@ -25,9 +23,7 @@ class ScanningChatListRepository @Inject constructor(
     private val bluetoothScanner: OneShotBluetoothScanner,
     private val deviceAndMessagesDao: DeviceAndMessagesDao,
     private val deviceDao: DeviceDao,
-    private val messageDao: MessageDao,
-    private val deviceCacheThreshold: DeviceCacheThreshold,
-    private val currentTime: CurrentTime
+    private val deviceCacheThreshold: DeviceCacheThreshold
 ) : ChatListRepository {
 
     override fun items(): Flow<Resource<List<ChatListItem>>> = flow {
@@ -50,6 +46,7 @@ class ScanningChatListRepository @Inject constructor(
     private fun List<DeviceAndMessages>.toChatListItems(): List<ChatListItem> {
         return map { deviceAndMessages ->
             ChatListItem(
+                messageIdentifier = deviceAndMessages.device.messageIdentifier.toList(),
                 address = deviceAndMessages.device.address,
                 name = deviceAndMessages.device.name,
                 latestMessage = deviceAndMessages.messages.maxByOrNull(Message::timestamp)?.text

@@ -33,7 +33,7 @@ class BroadcastingServerRepository @Inject constructor(
             .onEach { event ->
                 if (event is BluetoothServer.Event.Message) {
                     val message = Message(
-                        conversation = event.address,
+                        conversation = event.identifier,
                         isMe = false,
                         text = event.message,
                         timestamp = currentTime.millis()

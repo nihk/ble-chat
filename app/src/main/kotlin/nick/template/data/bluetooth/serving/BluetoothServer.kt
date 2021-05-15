@@ -13,7 +13,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import nick.template.data.bluetooth.ServiceDataConfig
 import nick.template.data.offerSafely
+import nick.template.data.toByteArray
 
 interface BluetoothServer {
     fun events(): Flow<Event>
@@ -24,8 +26,8 @@ interface BluetoothServer {
             val name: String?
         ) : Event()
         object Disconnected : Event()
-        data class Message(
-            val address: String,
+        class Message(
+            val identifier: ByteArray,
             val message: String
         ) : Event()
     }
@@ -34,7 +36,8 @@ interface BluetoothServer {
 class AndroidBluetoothServer @Inject constructor(
     @ApplicationContext private val context: Context,
     private val bluetoothManager: BluetoothManager,
-    private val bluetoothGattService: BluetoothGattService
+    private val bluetoothGattService: BluetoothGattService,
+    private val serviceDataConfig: ServiceDataConfig
 ) : BluetoothServer {
 
     override fun events(): Flow<BluetoothServer.Event> = callbackFlow {
@@ -64,19 +67,20 @@ class AndroidBluetoothServer @Inject constructor(
             override fun onCharacteristicWriteRequest(
                 device: BluetoothDevice,
                 requestId: Int,
-                characteristic: BluetoothGattCharacteristic?,
+                characteristic: BluetoothGattCharacteristic,
                 preparedWrite: Boolean,
                 responseNeeded: Boolean,
                 offset: Int,
                 value: ByteArray?
             ) {
-                // todo: check responseNeeded field?
                 // fixme: does this need to be a part of the queue?
-                gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
+                if (responseNeeded) {
+                    gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
+                }
                 val message = value?.toString(Charsets.UTF_8) ?: return
 
                 val event = BluetoothServer.Event.Message(
-                    address = device.address,
+                    identifier = characteristic.uuid.toByteArray(serviceDataConfig.byteSize),
                     message = message
                 )
 

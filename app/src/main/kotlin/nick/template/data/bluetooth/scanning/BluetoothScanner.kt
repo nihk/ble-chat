@@ -3,6 +3,7 @@ package nick.template.data.bluetooth.scanning
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
+import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -12,7 +13,6 @@ import nick.template.data.bluetooth.requireBle
 import nick.template.data.bluetooth.toBluetoothError
 import nick.template.data.local.Device
 import nick.template.data.offerSafely
-import javax.inject.Inject
 
 interface BluetoothScanner {
     fun results(): Flow<Result>
@@ -64,6 +64,8 @@ class AndroidBluetoothScanner @Inject constructor(
 
     private fun ScanResult.toDevice(): Device {
         return Device(
+            // todo: can this be safer?
+            messageIdentifier = scanRecord?.getServiceData(scanRecord?.serviceUuids?.first())!!,
             address = device.address,
             name = device.name,
             lastSeen = currentTime.millis()

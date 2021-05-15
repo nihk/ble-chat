@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.location.LocationManager
 import androidx.room.Room
 import dagger.Binds
@@ -21,6 +22,8 @@ import nick.template.data.bluetooth.AppBluetoothUuids
 import nick.template.data.bluetooth.BluetoothConversationRepository
 import nick.template.data.bluetooth.BluetoothUuids
 import nick.template.data.bluetooth.ConversationRepository
+import nick.template.data.bluetooth.DefaultServiceDataConfig
+import nick.template.data.bluetooth.ServiceDataConfig
 import nick.template.data.bluetooth.advertising.AdvertisingConfig
 import nick.template.data.bluetooth.advertising.AndroidBluetoothAdvertiser
 import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
@@ -118,6 +121,14 @@ abstract class AppModule {
         fun chatListItemDao(appDatabase: AppDatabase): DeviceAndMessagesDao {
             return appDatabase.chatListItemDao()
         }
+
+        @Provides
+        fun sharedPrefs(application: Application): SharedPreferences {
+            return application.getSharedPreferences(
+                "${application.packageName}_preferences",
+                Context.MODE_PRIVATE
+            )
+        }
     }
 
     @Binds
@@ -173,4 +184,7 @@ abstract class AppModule {
 
     @Binds
     abstract fun serverRepository(serverRepository: BroadcastingServerRepository): ServerRepository
+
+    @Binds
+    abstract fun serviceDataConfig(serviceDataConfig: DefaultServiceDataConfig): ServiceDataConfig
 }

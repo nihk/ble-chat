@@ -1,2 +1,2 @@
 include(":app")
-rootProject.name = "bluetooth-fun"
+rootProject.name = "ble-chat"

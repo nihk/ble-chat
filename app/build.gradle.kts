@@ -7,7 +7,7 @@ plugins {
 
 androidAppConfig {
     defaultConfig {
-        applicationId = "nick.bluetooth_fun"
+        applicationId = "nick.ble_chat"
         versionCode = 1
         versionName = "1.0"
 

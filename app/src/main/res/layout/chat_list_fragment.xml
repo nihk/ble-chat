@@ -47,6 +47,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
+        android:padding="16dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,7 +58,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Didn't seem to find any devices"
+            android:gravity="center"
+            android:text="Didn't seem to find any devices. Is another phone with this app installed nearby?"
             android:textSize="20sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />

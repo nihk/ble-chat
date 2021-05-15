@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import nick.template.data.bluetooth.ServiceDataConfig
 import nick.template.data.offerSafely
-import nick.template.data.toByteArray
 
 interface BluetoothServer {
     fun events(): Flow<Event>
@@ -71,17 +70,19 @@ class AndroidBluetoothServer @Inject constructor(
                 preparedWrite: Boolean,
                 responseNeeded: Boolean,
                 offset: Int,
-                value: ByteArray?
+                value: ByteArray
             ) {
-                // fixme: does this need to be a part of the queue?
                 if (responseNeeded) {
+                    // fixme: does this need to be a part of a queue?
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
                 }
-                val message = value?.toString(Charsets.UTF_8) ?: return
+                val identifierPart = value.copyOfRange(0, serviceDataConfig.byteSize)
+                val messagePart = value.copyOfRange(serviceDataConfig.byteSize, value.size)
+                    .toString(Charsets.UTF_8)
 
                 val event = BluetoothServer.Event.Message(
-                    identifier = characteristic.uuid.toByteArray(serviceDataConfig.byteSize),
-                    message = message
+                    identifier = identifierPart,
+                    message = messagePart
                 )
 
                 offerSafely(event)

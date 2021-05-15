@@ -7,5 +7,5 @@ interface ServiceDataConfig {
 }
 
 class DefaultServiceDataConfig @Inject constructor() : ServiceDataConfig {
-    override val byteSize: Int = 8 // todo: try 12
+    override val byteSize: Int = 4
 }

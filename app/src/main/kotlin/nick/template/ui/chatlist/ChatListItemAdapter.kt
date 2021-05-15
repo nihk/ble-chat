@@ -2,6 +2,7 @@ package nick.template.ui.chatlist
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -25,15 +26,19 @@ object ChatListItemDiffCallback : DiffUtil.ItemCallback<ChatListItem>() {
     override fun areItemsTheSame(oldItem: ChatListItem, newItem: ChatListItem): Boolean {
         return oldItem.address == newItem.address
     }
+
     override fun areContentsTheSame(oldItem: ChatListItem, newItem: ChatListItem): Boolean {
         return oldItem == newItem
     }
 }
 
-class ChatListItemViewHolder(private val binding: ChatListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+class ChatListItemViewHolder(private val binding: ChatListItemBinding) :
+    RecyclerView.ViewHolder(binding.root) {
     fun bind(item: ChatListItem, chatWith: (ChatListItem) -> Unit) {
         binding.name.text = item.name.toString()
         binding.address.text = item.address
+        binding.latest.text = item.latestMessage
+        binding.latest.isVisible = item.latestMessage != null
         binding.message.setOnClickListener {
             chatWith(item)
         }

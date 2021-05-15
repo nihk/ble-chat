@@ -53,7 +53,7 @@ class ScanningChatListRepository @Inject constructor(
             ChatListItem(
                 address = deviceAndMessages.device.address,
                 name = deviceAndMessages.device.name,
-                latestMessage = deviceAndMessages.messages.maxByOrNull { it.timestamp }?.text
+                latestMessage = deviceAndMessages.messages.maxByOrNull(Message::timestamp)?.text
             )
         }
     }

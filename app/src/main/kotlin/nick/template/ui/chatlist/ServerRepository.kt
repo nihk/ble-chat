@@ -42,6 +42,7 @@ class BroadcastingServerRepository @Inject constructor(
                 }
             }
 
+        // fixme: serverEvents are delayed until a device disconnects, so this won't emit anything til both flows emit once
         return combine(advertiser.start(), serverEvents) { startResult, serverEvent ->
             Pair(startResult, serverEvent)
         }.transform {  pair ->

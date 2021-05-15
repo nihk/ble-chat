@@ -18,12 +18,16 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
 import nick.template.data.Resource
-import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
 import nick.template.data.bluetooth.usability.BluetoothUsability
 import nick.template.databinding.ChatListFragmentBinding
 import nick.template.ui.OpenLocationSettings
 import nick.template.ui.TurnOnBluetooth
 
+// fixme: bluetooth addresses aren't reliable as they keep changing due to LE privacy.
+//  how can i keep a consistent unique identifier on a per device basis? service UUID
+//  only works for all apps.
+//  Need to use some other kind of UUID that is advertised and comes with message (characteristics)
+// todo: need to clean up messages in database when associated devices are removed
 // todo: this screen should listen for messages, and set the most recent on on the devices list
 //  this will require joining Message and Device tables.
 // todo: bluetooth chat interface

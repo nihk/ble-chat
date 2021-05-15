@@ -19,10 +19,8 @@ import nick.template.data.local.MessageDao
 
 interface ChatListRepository {
     fun items(): Flow<Resource<List<ChatListItem>>>
-    suspend fun insertMessage(address: String, text: String)
 }
 
-// todo: need to clean up messages in database when associated devices are removed
 class ScanningChatListRepository @Inject constructor(
     private val bluetoothScanner: OneShotBluetoothScanner,
     private val deviceAndMessagesDao: DeviceAndMessagesDao,
@@ -57,15 +55,5 @@ class ScanningChatListRepository @Inject constructor(
                 latestMessage = deviceAndMessages.messages.maxByOrNull(Message::timestamp)?.text
             )
         }
-    }
-
-    override suspend fun insertMessage(address: String, text: String) {
-        val message = Message(
-            conversation = address,
-            isMe = false,
-            text = text,
-            timestamp = currentTime.millis()
-        )
-        messageDao.insert(message)
     }
 }

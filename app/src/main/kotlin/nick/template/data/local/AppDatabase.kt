@@ -11,5 +11,5 @@ import androidx.room.RoomDatabase
 abstract class AppDatabase : RoomDatabase() {
     abstract fun deviceDao(): DeviceDao
     abstract fun messageDao(): MessageDao
-    abstract fun chatListItemDao(): ChatListItemDao
+    abstract fun chatListItemDao(): DeviceAndMessagesDao
 }

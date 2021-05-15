@@ -4,14 +4,13 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
-import nick.template.ui.chatlist.ChatListItem
 
 @Dao
-interface ChatListItemDao {
+interface DeviceAndMessagesDao {
     @Transaction
     @Query("""
         SELECT *
         FROM devices
     """)
-    fun selectAll(): Flow<List<ChatListItem>>
+    fun selectAll(): Flow<List<DeviceAndMessages>>
 }

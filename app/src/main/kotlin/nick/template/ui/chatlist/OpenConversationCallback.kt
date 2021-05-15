@@ -6,16 +6,16 @@ import nick.template.navigation.AppNavGraph
 import nick.template.ui.conversation.ConversationFragment
 
 interface OpenConversationCallback {
-    fun with(chatListItem: ChatListItem)
+    fun with(item: ChatListItem)
 }
 
 class DefaultOpenConversationCallback @Inject constructor(
     private val navController: NavController
 ) : OpenConversationCallback {
-    override fun with(chatListItem: ChatListItem) {
+    override fun with(item: ChatListItem) {
         navController.navigate(
             AppNavGraph.Actions.toConversation,
-            ConversationFragment.bundle(chatListItem.device.address)
+            ConversationFragment.bundle(item.address)
         )
     }
 }

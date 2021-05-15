@@ -5,15 +5,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import nick.template.data.local.Device
-import nick.template.databinding.DeviceItemBinding
+import nick.template.databinding.ChatListItemBinding
 
 class ChatListItemAdapter(
     private val converseWith: (ChatListItem) -> Unit
 ) : ListAdapter<ChatListItem, ChatListItemViewHolder>(ChatListItemDiffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatListItemViewHolder {
         return LayoutInflater.from(parent.context)
-            .let { inflater -> DeviceItemBinding.inflate(inflater, parent, false) }
+            .let { inflater -> ChatListItemBinding.inflate(inflater, parent, false) }
             .let { binding -> ChatListItemViewHolder(binding) }
     }
 
@@ -24,18 +23,17 @@ class ChatListItemAdapter(
 
 object ChatListItemDiffCallback : DiffUtil.ItemCallback<ChatListItem>() {
     override fun areItemsTheSame(oldItem: ChatListItem, newItem: ChatListItem): Boolean {
-        return oldItem.device.address == newItem.device.address
+        return oldItem.address == newItem.address
     }
     override fun areContentsTheSame(oldItem: ChatListItem, newItem: ChatListItem): Boolean {
         return oldItem == newItem
     }
 }
 
-class ChatListItemViewHolder(private val binding: DeviceItemBinding) : RecyclerView.ViewHolder(binding.root) {
+class ChatListItemViewHolder(private val binding: ChatListItemBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(item: ChatListItem, chatWith: (ChatListItem) -> Unit) {
-        val device = item.device
-        binding.name.text = device.name.toString()
-        binding.address.text = device.address
+        binding.name.text = item.name.toString()
+        binding.address.text = item.address
         binding.message.setOnClickListener {
             chatWith(item)
         }

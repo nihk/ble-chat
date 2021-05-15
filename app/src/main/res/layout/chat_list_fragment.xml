@@ -28,7 +28,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_progress_bar"
-        tools:listitem="@layout/device_item" />
+        tools:listitem="@layout/chat_list_item" />
 
     <ProgressBar
         android:id="@+id/center_progress_bar"

@@ -48,7 +48,7 @@ import nick.template.data.bluetooth.scanning.OneShotBluetoothScanner
 import nick.template.data.bluetooth.scanning.ScanningConfig
 import nick.template.data.bluetooth.scanning.ScanningTimeout
 import nick.template.data.local.AppDatabase
-import nick.template.data.local.ChatListItemDao
+import nick.template.data.local.DeviceAndMessagesDao
 import nick.template.data.local.DeviceDao
 import nick.template.data.local.MessageDao
 import nick.template.ui.chatlist.BluetoothChatListRepository
@@ -115,7 +115,7 @@ abstract class AppModule {
         }
 
         @Provides
-        fun chatListItemDao(appDatabase: AppDatabase): ChatListItemDao {
+        fun chatListItemDao(appDatabase: AppDatabase): DeviceAndMessagesDao {
             return appDatabase.chatListItemDao()
         }
     }

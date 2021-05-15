@@ -17,29 +17,19 @@ import nick.template.data.AndroidLocationStates
 import nick.template.data.CurrentTime
 import nick.template.data.LocationStates
 import nick.template.data.SystemCurrentTime
-import nick.template.data.bluetooth.advertising.AdvertisingConfig
-import nick.template.data.bluetooth.advertising.AdvertisingRepository
-import nick.template.data.bluetooth.advertising.AndroidBluetoothAdvertiser
-import nick.template.data.bluetooth.connecting.AndroidBluetoothConnector
-import nick.template.data.bluetooth.usability.AndroidBluetoothPermissions
-import nick.template.data.bluetooth.scanning.AndroidBluetoothScanner
-import nick.template.data.bluetooth.usability.AndroidBluetoothStates
-import nick.template.data.bluetooth.usability.DefaultBluetoothUsability
-import nick.template.data.bluetooth.scanning.AppScanningConfig
-import nick.template.data.bluetooth.connecting.BluetoothConnector
-import nick.template.data.bluetooth.BluetoothConversationRepository
-import nick.template.data.bluetooth.usability.BluetoothPermissions
-import nick.template.data.bluetooth.scanning.BluetoothScanner
-import nick.template.data.bluetooth.serving.BluetoothServer
-import nick.template.data.bluetooth.usability.BluetoothStates
-import nick.template.data.bluetooth.usability.BluetoothUsability
-import nick.template.data.bluetooth.ConversationRepository
-import nick.template.data.bluetooth.serving.AndroidBluetoothServer
-import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
-import nick.template.data.bluetooth.BluetoothUuids
 import nick.template.data.bluetooth.AppBluetoothUuids
+import nick.template.data.bluetooth.BluetoothConversationRepository
+import nick.template.data.bluetooth.BluetoothUuids
+import nick.template.data.bluetooth.ConversationRepository
+import nick.template.data.bluetooth.advertising.AdvertisingConfig
+import nick.template.data.bluetooth.advertising.AndroidBluetoothAdvertiser
+import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
 import nick.template.data.bluetooth.advertising.DefaultAdvertisingConfig
-import nick.template.data.bluetooth.advertising.DefaultAdvertisingRepository
+import nick.template.data.bluetooth.connecting.AndroidBluetoothConnector
+import nick.template.data.bluetooth.connecting.BluetoothConnector
+import nick.template.data.bluetooth.scanning.AndroidBluetoothScanner
+import nick.template.data.bluetooth.scanning.AppScanningConfig
+import nick.template.data.bluetooth.scanning.BluetoothScanner
 import nick.template.data.bluetooth.scanning.DefaultDeviceCacheThreshold
 import nick.template.data.bluetooth.scanning.DefaultScanningTimeout
 import nick.template.data.bluetooth.scanning.DeviceCacheThreshold
@@ -47,12 +37,22 @@ import nick.template.data.bluetooth.scanning.FirstResultBluetoothScanner
 import nick.template.data.bluetooth.scanning.OneShotBluetoothScanner
 import nick.template.data.bluetooth.scanning.ScanningConfig
 import nick.template.data.bluetooth.scanning.ScanningTimeout
+import nick.template.data.bluetooth.serving.AndroidBluetoothServer
+import nick.template.data.bluetooth.serving.BluetoothServer
+import nick.template.data.bluetooth.usability.AndroidBluetoothPermissions
+import nick.template.data.bluetooth.usability.AndroidBluetoothStates
+import nick.template.data.bluetooth.usability.BluetoothPermissions
+import nick.template.data.bluetooth.usability.BluetoothStates
+import nick.template.data.bluetooth.usability.BluetoothUsability
+import nick.template.data.bluetooth.usability.DefaultBluetoothUsability
 import nick.template.data.local.AppDatabase
 import nick.template.data.local.DeviceAndMessagesDao
 import nick.template.data.local.DeviceDao
 import nick.template.data.local.MessageDao
-import nick.template.ui.chatlist.ScanningChatListRepository
+import nick.template.ui.chatlist.BroadcastingServerRepository
 import nick.template.ui.chatlist.ChatListRepository
+import nick.template.ui.chatlist.ScanningChatListRepository
+import nick.template.ui.chatlist.ServerRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -172,5 +172,5 @@ abstract class AppModule {
     abstract fun advertisingConfig(advertisingConfig: DefaultAdvertisingConfig): AdvertisingConfig
 
     @Binds
-    abstract fun advertisingRepository(advertisingRepository: DefaultAdvertisingRepository): AdvertisingRepository
+    abstract fun serverRepository(serverRepository: BroadcastingServerRepository): ServerRepository
 }

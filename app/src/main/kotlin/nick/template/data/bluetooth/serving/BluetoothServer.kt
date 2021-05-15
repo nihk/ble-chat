@@ -36,9 +36,10 @@ class AndroidBluetoothServer @Inject constructor(
     private val bluetoothManager: BluetoothManager,
     private val bluetoothGattService: BluetoothGattService
 ) : BluetoothServer {
-    private var gattServer: BluetoothGattServer? = null
 
     override fun events(): Flow<BluetoothServer.Event> = callbackFlow {
+        var gattServer: BluetoothGattServer? = null
+
         val callback = object : BluetoothGattServerCallback() {
             override fun onConnectionStateChange(
                 device: BluetoothDevice,
@@ -69,6 +70,7 @@ class AndroidBluetoothServer @Inject constructor(
                 offset: Int,
                 value: ByteArray?
             ) {
+                // todo: check responseNeeded field?
                 // fixme: does this need to be a part of the queue?
                 gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
                 val message = value?.toString(Charsets.UTF_8) ?: return

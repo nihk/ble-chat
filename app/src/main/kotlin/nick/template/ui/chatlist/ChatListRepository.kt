@@ -22,6 +22,7 @@ interface ChatListRepository {
     suspend fun insertMessage(address: String, text: String)
 }
 
+// todo: need to clean up messages in database when associated devices are removed
 class ScanningChatListRepository @Inject constructor(
     private val bluetoothScanner: OneShotBluetoothScanner,
     private val deviceAndMessagesDao: DeviceAndMessagesDao,

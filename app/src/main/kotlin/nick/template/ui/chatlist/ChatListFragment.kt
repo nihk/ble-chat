@@ -72,13 +72,13 @@ class ChatListFragment @Inject constructor(
 
         // Hack: this has to be called before viewModel.bluetoothUsability(), otherwise it'll miss
         // any SharedFlow emissions resulting from Bluetooth becoming usable.
-        viewModel.advertising()
+        viewModel.serverEvents()
             // No point in advertising while the app is backgrounded.
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { startResult ->
                 when (startResult) {
-                    is BluetoothAdvertiser.StartResult.Error -> TODO("Show dialog?")
-                    is BluetoothAdvertiser.StartResult.Success -> {}
+                    is ServerRepository.Event.AdvertisingFailed -> TODO("Show dialog?")
+                    is ServerRepository.Event.Disconnected -> {}
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)

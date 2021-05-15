@@ -15,28 +15,26 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import nick.template.data.Resource
-import nick.template.data.bluetooth.advertising.AdvertisingRepository
-import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
 import nick.template.data.bluetooth.usability.BluetoothUsability
 
 class ChatListViewModel(
     private val bluetoothUsability: BluetoothUsability,
     private val chatListRepository: ChatListRepository,
-    private val advertisingRepository: AdvertisingRepository
+    private val serverRepository: ServerRepository
 ) : ViewModel() {
     private val items = MutableStateFlow<Resource<List<ChatListItem>>?>(null)
     fun items(): Flow<Resource<List<ChatListItem>>> = items.filterNotNull()
 
-    private val advertisingRequests = MutableSharedFlow<Unit>()
-    fun advertising(): Flow<BluetoothAdvertiser.StartResult> = advertisingRequests.flatMapLatest {
-        advertisingRepository.advertise()
+    private val startServerRequests = MutableSharedFlow<Unit>()
+    fun serverEvents(): Flow<ServerRepository.Event> = startServerRequests.flatMapLatest {
+        serverRepository.events()
     }
 
     private val useBluetoothRequests = MutableSharedFlow<Unit>()
 
     init {
         useBluetoothRequests
-            .onEach { advertisingRequests.emit(Unit) }
+            .onEach { startServerRequests.emit(Unit) }
             .flatMapLatest { chatListRepository.items() }
             .onEach { items.value = it }
             .launchIn(viewModelScope)
@@ -56,7 +54,7 @@ class ChatListViewModel(
     class Factory @Inject constructor(
         private val bluetoothUsability: BluetoothUsability,
         private val chatListRepository: ChatListRepository,
-        private val advertisingRepository: AdvertisingRepository
+        private val serverRepository: ServerRepository
     ) {
         fun create(owner: SavedStateRegistryOwner): AbstractSavedStateViewModelFactory {
             return object : AbstractSavedStateViewModelFactory(owner, null) {
@@ -69,7 +67,7 @@ class ChatListViewModel(
                     return ChatListViewModel(
                         bluetoothUsability,
                         chatListRepository,
-                        advertisingRepository
+                        serverRepository
                     ) as T
                 }
             }

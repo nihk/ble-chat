@@ -13,7 +13,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import nick.template.data.bluetooth.ServiceDataConfig
+import nick.template.data.bluetooth.CharacteristicParser
 import nick.template.data.offerSafely
 
 interface BluetoothServer {
@@ -36,7 +36,7 @@ class AndroidBluetoothServer @Inject constructor(
     @ApplicationContext private val context: Context,
     private val bluetoothManager: BluetoothManager,
     private val bluetoothGattService: BluetoothGattService,
-    private val serviceDataConfig: ServiceDataConfig
+    private val characteristicParser: CharacteristicParser
 ) : BluetoothServer {
 
     override fun events(): Flow<BluetoothServer.Event> = callbackFlow {
@@ -76,14 +76,8 @@ class AndroidBluetoothServer @Inject constructor(
                     // fixme: does this need to be a part of a queue?
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
                 }
-                val identifierPart = value.copyOfRange(0, serviceDataConfig.byteSize)
-                val messagePart = value.copyOfRange(serviceDataConfig.byteSize, value.size)
-                    .toString(Charsets.UTF_8)
 
-                val event = BluetoothServer.Event.Message(
-                    identifier = identifierPart,
-                    message = messagePart
-                )
+                val event = characteristicParser.parse(value)
 
                 offerSafely(event)
             }

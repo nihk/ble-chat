@@ -22,8 +22,10 @@ import nick.template.data.SystemCurrentTime
 import nick.template.data.bluetooth.AppBluetoothUuids
 import nick.template.data.bluetooth.BluetoothConversationRepository
 import nick.template.data.bluetooth.BluetoothUuids
+import nick.template.data.bluetooth.CharacteristicParser
 import nick.template.data.bluetooth.ConversationRepository
 import nick.template.data.bluetooth.DefaultServiceDataConfig
+import nick.template.data.bluetooth.IdentifiableCharacteristicParser
 import nick.template.data.bluetooth.ServiceDataConfig
 import nick.template.data.bluetooth.advertising.AdvertisingConfig
 import nick.template.data.bluetooth.advertising.AndroidBluetoothAdvertiser
@@ -177,4 +179,7 @@ abstract class AppModule {
 
     @Binds
     abstract fun serviceDataConfig(serviceDataConfig: DefaultServiceDataConfig): ServiceDataConfig
+
+    @Binds
+    abstract fun characteristicParser(characteristicParser: IdentifiableCharacteristicParser): CharacteristicParser
 }

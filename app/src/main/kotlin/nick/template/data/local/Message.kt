@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey
 data class Message(
     @PrimaryKey
     val conversation: String,
-    val from: String,
-    val to: String,
+    val isMe: Boolean,
     val text: String,
     val timestamp: Long
 )

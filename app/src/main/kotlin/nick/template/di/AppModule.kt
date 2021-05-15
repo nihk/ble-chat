@@ -51,7 +51,7 @@ import nick.template.data.local.AppDatabase
 import nick.template.data.local.DeviceAndMessagesDao
 import nick.template.data.local.DeviceDao
 import nick.template.data.local.MessageDao
-import nick.template.ui.chatlist.BluetoothChatListRepository
+import nick.template.ui.chatlist.ScanningChatListRepository
 import nick.template.ui.chatlist.ChatListRepository
 
 @Module
@@ -121,7 +121,7 @@ abstract class AppModule {
     }
 
     @Binds
-    abstract fun chatListRepository(repository: BluetoothChatListRepository): ChatListRepository
+    abstract fun chatListRepository(repository: ScanningChatListRepository): ChatListRepository
 
     @Binds
     abstract fun conversationRepository(repository: BluetoothConversationRepository): ConversationRepository

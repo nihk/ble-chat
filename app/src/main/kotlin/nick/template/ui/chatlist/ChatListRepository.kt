@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import nick.template.data.CurrentTime
 import nick.template.data.Resource
 import nick.template.data.bluetooth.scanning.BluetoothScanner
 import nick.template.data.bluetooth.scanning.DeviceCacheThreshold
@@ -18,15 +19,16 @@ import nick.template.data.local.MessageDao
 
 interface ChatListRepository {
     fun items(): Flow<Resource<List<ChatListItem>>>
-    suspend fun insertMessage(message: Message)
+    suspend fun insertMessage(address: String, text: String)
 }
 
-class BluetoothChatListRepository @Inject constructor(
+class ScanningChatListRepository @Inject constructor(
     private val bluetoothScanner: OneShotBluetoothScanner,
     private val deviceAndMessagesDao: DeviceAndMessagesDao,
     private val deviceDao: DeviceDao,
     private val messageDao: MessageDao,
-    private val deviceCacheThreshold: DeviceCacheThreshold
+    private val deviceCacheThreshold: DeviceCacheThreshold,
+    private val currentTime: CurrentTime
 ) : ChatListRepository {
 
     override fun items(): Flow<Resource<List<ChatListItem>>> = flow {
@@ -56,7 +58,13 @@ class BluetoothChatListRepository @Inject constructor(
         }
     }
 
-    override suspend fun insertMessage(message: Message) {
+    override suspend fun insertMessage(address: String, text: String) {
+        val message = Message(
+            conversation = address,
+            isMe = false,
+            text = text,
+            timestamp = currentTime.millis()
+        )
         messageDao.insert(message)
     }
 }

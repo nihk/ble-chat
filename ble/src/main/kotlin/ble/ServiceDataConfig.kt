@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package ble
 
 import javax.inject.Inject
 

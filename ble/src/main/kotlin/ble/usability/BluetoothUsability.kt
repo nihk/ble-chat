@@ -1,13 +1,13 @@
-package nick.template.data.bluetooth.usability
+package ble.usability
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onStart
-import nick.template.data.LocationState
-import nick.template.data.LocationStates
-import nick.template.data.bluetooth.usability.BluetoothUsability.SideEffect
+import ble.LocationState
+import ble.LocationStates
+import ble.usability.BluetoothUsability.SideEffect
 import javax.inject.Inject
 
 interface BluetoothUsability {

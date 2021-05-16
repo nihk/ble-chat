@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transform
 import nick.template.data.CurrentTime
-import nick.template.data.bluetooth.BluetoothError
-import nick.template.data.bluetooth.advertising.BluetoothAdvertiser
-import nick.template.data.bluetooth.serving.BluetoothServer
+import ble.BluetoothError
+import ble.advertising.BluetoothAdvertiser
+import ble.serving.BluetoothServer
 import nick.template.data.local.DeviceAndMessagesDao
 import nick.template.data.local.Message
 

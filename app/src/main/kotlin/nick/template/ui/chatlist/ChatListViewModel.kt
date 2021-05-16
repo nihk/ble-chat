@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import nick.template.data.Resource
-import nick.template.data.bluetooth.usability.BluetoothUsability
+import ble.usability.BluetoothUsability
 
 class ChatListViewModel(
     private val bluetoothUsability: BluetoothUsability,

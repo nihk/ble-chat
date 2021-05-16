@@ -1,4 +1,4 @@
-package nick.template.data
+package ble
 
 import android.content.BroadcastReceiver
 import android.content.Context

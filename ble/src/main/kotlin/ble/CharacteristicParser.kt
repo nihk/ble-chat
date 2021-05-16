@@ -1,7 +1,7 @@
-package nick.template.data.bluetooth
+package ble
 
 import javax.inject.Inject
-import nick.template.data.bluetooth.serving.BluetoothServer
+import ble.serving.BluetoothServer
 
 interface CharacteristicParser {
     fun parse(value: ByteArray): BluetoothServer.Event.Message

@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.template.R
 import nick.template.data.Resource
-import nick.template.data.bluetooth.usability.BluetoothUsability
+import ble.usability.BluetoothUsability
 import nick.template.databinding.ChatListFragmentBinding
 import nick.template.ui.OpenLocationSettings
 import nick.template.ui.TurnOnBluetooth

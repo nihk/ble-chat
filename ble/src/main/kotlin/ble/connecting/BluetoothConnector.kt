@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth.connecting
+package ble.connecting
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
@@ -10,12 +10,11 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import nick.template.data.local.Device
-import nick.template.data.offerSafely
+import ble.offerSafely
 import javax.inject.Inject
 
 interface BluetoothConnector {
-    fun connect(device: Device): Flow<State>
+    fun connect(address: String): Flow<State>
 
     sealed class State {
         object Server : State()
@@ -29,7 +28,7 @@ class AndroidBluetoothConnector @Inject constructor(
     @ApplicationContext private val context: Context,
     private val bluetoothAdapter: BluetoothAdapter
 ) : BluetoothConnector {
-    override fun connect(device: Device) = callbackFlow<BluetoothConnector.State> {
+    override fun connect(address: String) = callbackFlow<BluetoothConnector.State> {
         val callback = object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -73,7 +72,7 @@ class AndroidBluetoothConnector @Inject constructor(
             }
         }
 
-        val bluetoothDevice = bluetoothAdapter.getRemoteDevice(device.address)
+        val bluetoothDevice = bluetoothAdapter.getRemoteDevice(address)
 
         val server = bluetoothDevice.connectGatt(
             context, false, callback

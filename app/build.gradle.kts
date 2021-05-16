@@ -21,6 +21,7 @@ androidAppConfig {
 }
 
 dependencies {
+    implementation(project(":ble"))
     implementation(Dependencies.activity)
     implementation(Dependencies.Fragment.runtime)
     implementation(Dependencies.Lifecycle.runtime)

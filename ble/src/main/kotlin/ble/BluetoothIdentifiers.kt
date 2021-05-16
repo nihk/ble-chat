@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package ble
 
 import android.content.SharedPreferences
 import java.util.UUID

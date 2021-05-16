@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth.usability
+package ble.usability
 
 import android.Manifest
 import android.content.Context

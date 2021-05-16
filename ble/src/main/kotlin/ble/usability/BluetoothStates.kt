@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth.usability
+package ble.usability
 
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onStart
-import nick.template.data.offerSafely
+import ble.offerSafely
 import javax.inject.Inject
 
 sealed class BluetoothState {

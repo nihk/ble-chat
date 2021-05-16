@@ -1,10 +1,10 @@
-package nick.template.data.bluetooth.advertising
+package ble.advertising
 
 import android.bluetooth.le.AdvertiseData
 import android.bluetooth.le.AdvertiseSettings
 import android.os.ParcelUuid
 import javax.inject.Inject
-import nick.template.data.bluetooth.BluetoothIdentifiers
+import ble.BluetoothIdentifiers
 
 interface AdvertisingConfig {
     val settings: AdvertiseSettings

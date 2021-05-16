@@ -1,9 +1,9 @@
-package nick.template.data.bluetooth.scanning
+package ble.scanning
 
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanSettings
 import android.os.ParcelUuid
-import nick.template.data.bluetooth.BluetoothIdentifiers
+import ble.BluetoothIdentifiers
 import javax.inject.Inject
 
 interface ScanningConfig {

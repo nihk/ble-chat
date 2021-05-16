@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth
+package ble
 
 fun <T> requireBle(t: T?): T {
     return requireNotNull(t) {

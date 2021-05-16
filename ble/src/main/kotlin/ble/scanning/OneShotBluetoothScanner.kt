@@ -1,8 +1,8 @@
-package nick.template.data.bluetooth.scanning
+package ble.scanning
 
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
-import nick.template.data.bluetooth.ScanningTimedOut
+import ble.ScanningTimedOut
 import javax.inject.Inject
 
 interface OneShotBluetoothScanner {
@@ -18,7 +18,7 @@ class FirstResultBluetoothScanner @Inject constructor(
             bluetoothScanner.results()
                 .first { result ->
                     result is BluetoothScanner.Result.Error
-                        || result is BluetoothScanner.Result.Success && result.devices.isNotEmpty()
+                        || result is BluetoothScanner.Result.Success && result.scans.isNotEmpty()
                 }
         } ?: BluetoothScanner.Result.Error(ScanningTimedOut(scanningTimeout.timeout))
     }

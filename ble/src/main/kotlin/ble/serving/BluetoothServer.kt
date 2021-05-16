@@ -1,4 +1,4 @@
-package nick.template.data.bluetooth.serving
+package ble.serving
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
@@ -13,8 +13,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import nick.template.data.bluetooth.CharacteristicParser
-import nick.template.data.offerSafely
+import ble.CharacteristicParser
+import ble.offerSafely
 
 interface BluetoothServer {
     fun events(): Flow<Event>

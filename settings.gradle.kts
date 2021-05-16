@@ -1,2 +1,2 @@
-include(":app")
+include(":app", ":ble")
 rootProject.name = "ble-chat"

@@ -3,7 +3,7 @@ package nick.template.ui.conversation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import nick.template.data.Resource
-import nick.template.data.bluetooth.connecting.BluetoothConnector
+import ble.connecting.BluetoothConnector
 import nick.template.data.local.Message
 import javax.inject.Inject
 

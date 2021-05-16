@@ -8,13 +8,12 @@ import android.bluetooth.BluetoothGattServerCallback
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import ble.offerSafely
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import ble.CharacteristicParser
-import ble.offerSafely
 
 interface BluetoothServer {
     fun events(): Flow<Event>
@@ -25,18 +24,14 @@ interface BluetoothServer {
             val name: String?
         ) : Event()
         object Disconnected : Event()
-        class Message(
-            val identifier: ByteArray,
-            val message: String
-        ) : Event()
+        class Write(val value: ByteArray) : Event()
     }
 }
 
 class AndroidBluetoothServer @Inject constructor(
     @ApplicationContext private val context: Context,
     private val bluetoothManager: BluetoothManager,
-    private val bluetoothGattService: BluetoothGattService,
-    private val characteristicParser: CharacteristicParser
+    private val bluetoothGattService: BluetoothGattService
 ) : BluetoothServer {
 
     override fun events(): Flow<BluetoothServer.Event> = callbackFlow {
@@ -77,9 +72,9 @@ class AndroidBluetoothServer @Inject constructor(
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, null)
                 }
 
-                val event = characteristicParser.parse(value)
+                val write = BluetoothServer.Event.Write(value)
 
-                offerSafely(event)
+                offerSafely(write)
             }
         }
 

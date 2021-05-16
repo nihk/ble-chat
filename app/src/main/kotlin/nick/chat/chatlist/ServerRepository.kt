@@ -9,6 +9,7 @@ import nick.chat.data.CurrentTime
 import ble.BluetoothError
 import ble.advertising.BluetoothAdvertiser
 import ble.serving.BluetoothServer
+import nick.chat.bluetooth.CharacteristicParser
 import nick.chat.data.local.DeviceAndMessagesDao
 import nick.chat.data.local.Message
 
@@ -25,17 +26,19 @@ class BroadcastingServerRepository @Inject constructor(
     private val advertiser: BluetoothAdvertiser,
     private val server: BluetoothServer,
     private val dao: DeviceAndMessagesDao,
-    private val currentTime: CurrentTime
+    private val currentTime: CurrentTime,
+    private val parser: CharacteristicParser
 ) : ServerRepository {
 
     override fun events(): Flow<ServerRepository.Event> {
         val serverEvents = server.events()
             .onEach { event ->
-                if (event is BluetoothServer.Event.Message) {
+                if (event is BluetoothServer.Event.Write) {
+                    val parsed = parser.parse(event.value)
                     val message = Message(
-                        conversation = event.identifier,
+                        conversation = parsed.first,
                         isMe = false,
-                        text = event.message,
+                        text = parsed.second,
                         timestamp = currentTime.millis()
                     )
                     dao.insert(message)

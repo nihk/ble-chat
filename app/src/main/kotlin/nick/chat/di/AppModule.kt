@@ -9,21 +9,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.location.LocationManager
 import androidx.room.Room
-import dagger.Binds
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import ble.AndroidLocationStates
-import nick.chat.data.CurrentTime
-import ble.LocationStates
-import nick.chat.data.SystemCurrentTime
-import nick.chat.conversation.BluetoothConversationRepository
 import ble.BluetoothIdentifiers
-import ble.CharacteristicParser
-import nick.chat.conversation.ConversationRepository
 import ble.DefaultServiceDataConfig
+import ble.LocationStates
 import ble.ServiceDataConfig
 import ble.advertising.AdvertisingConfig
 import ble.advertising.AndroidBluetoothAdvertiser
@@ -32,11 +21,9 @@ import ble.advertising.DefaultAdvertisingConfig
 import ble.connecting.AndroidBluetoothConnector
 import ble.connecting.BluetoothConnector
 import ble.scanning.AndroidBluetoothScanner
-import ble.scanning.DefaultScanningConfig
 import ble.scanning.BluetoothScanner
-import nick.chat.data.local.DefaultDeviceCacheThreshold
+import ble.scanning.DefaultScanningConfig
 import ble.scanning.DefaultScanningTimeout
-import nick.chat.data.local.DeviceCacheThreshold
 import ble.scanning.FirstResultBluetoothScanner
 import ble.scanning.OneShotBluetoothScanner
 import ble.scanning.ScanningConfig
@@ -49,14 +36,25 @@ import ble.usability.BluetoothPermissions
 import ble.usability.BluetoothStates
 import ble.usability.BluetoothUsability
 import ble.usability.DefaultBluetoothUsability
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 import nick.chat.bluetooth.AppBluetoothIdentifiers
-import nick.chat.bluetooth.IdentifiableCharacteristicParser
-import nick.chat.data.local.AppDatabase
-import nick.chat.data.local.DeviceAndMessagesDao
 import nick.chat.chatlist.BroadcastingServerRepository
 import nick.chat.chatlist.ChatListRepository
 import nick.chat.chatlist.ScanningChatListRepository
 import nick.chat.chatlist.ServerRepository
+import nick.chat.conversation.BluetoothConversationRepository
+import nick.chat.conversation.ConversationRepository
+import nick.chat.data.CurrentTime
+import nick.chat.data.SystemCurrentTime
+import nick.chat.data.local.AppDatabase
+import nick.chat.data.local.DefaultDeviceCacheThreshold
+import nick.chat.data.local.DeviceAndMessagesDao
+import nick.chat.data.local.DeviceCacheThreshold
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -173,7 +171,4 @@ abstract class AppModule {
 
     @Binds
     abstract fun serviceDataConfig(serviceDataConfig: DefaultServiceDataConfig): ServiceDataConfig
-
-    @Binds
-    abstract fun characteristicParser(characteristicParser: IdentifiableCharacteristicParser): CharacteristicParser
 }

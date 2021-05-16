@@ -9,6 +9,7 @@ import javax.inject.Inject
 import nick.chat.data.bytify
 import nick.chat.data.stringify
 
+// todo: set a max character limit on edit text - 16 characters
 class ConversationFragment @Inject constructor(
     private val vmFactory: ConversationViewModel.Factory
 ) : Fragment(R.layout.conversation_fragment) {

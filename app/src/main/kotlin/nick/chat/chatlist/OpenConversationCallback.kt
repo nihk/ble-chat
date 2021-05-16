@@ -2,8 +2,8 @@ package nick.chat.chatlist
 
 import androidx.navigation.NavController
 import javax.inject.Inject
-import nick.chat.navigation.AppNavGraph
 import nick.chat.conversation.ConversationFragment
+import nick.chat.navigation.AppNavGraph
 
 interface OpenConversationCallback {
     fun with(item: ChatListItem)
@@ -15,7 +15,7 @@ class DefaultOpenConversationCallback @Inject constructor(
     override fun with(item: ChatListItem) {
         navController.navigate(
             AppNavGraph.Actions.toConversation,
-            ConversationFragment.bundle(item.address)
+            ConversationFragment.bundle(item.address, item.messageIdentifier.toByteArray())
         )
     }
 }

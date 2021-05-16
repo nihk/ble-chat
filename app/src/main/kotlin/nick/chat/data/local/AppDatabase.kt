@@ -9,5 +9,7 @@ import androidx.room.RoomDatabase
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun chatListItemDao(): DeviceAndMessagesDao
+    abstract fun devicesDao(): DevicesDao
+    abstract fun messagesDao(): MessagesDao
+    abstract fun deviceAndMessagesDao(): DeviceAndMessagesDao
 }

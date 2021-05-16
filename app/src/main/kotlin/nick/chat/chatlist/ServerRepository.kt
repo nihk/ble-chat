@@ -1,17 +1,17 @@
 package nick.chat.chatlist
 
+import ble.BluetoothError
+import ble.advertising.BluetoothAdvertiser
+import ble.serving.BluetoothServer
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transform
-import nick.chat.data.CurrentTime
-import ble.BluetoothError
-import ble.advertising.BluetoothAdvertiser
-import ble.serving.BluetoothServer
 import nick.chat.bluetooth.CharacteristicParser
-import nick.chat.data.local.DeviceAndMessagesDao
+import nick.chat.data.CurrentTime
 import nick.chat.data.local.Message
+import nick.chat.data.local.MessagesDao
 
 interface ServerRepository {
     fun events(): Flow<Event>
@@ -25,7 +25,7 @@ interface ServerRepository {
 class BroadcastingServerRepository @Inject constructor(
     private val advertiser: BluetoothAdvertiser,
     private val server: BluetoothServer,
-    private val dao: DeviceAndMessagesDao,
+    private val dao: MessagesDao,
     private val currentTime: CurrentTime,
     private val parser: CharacteristicParser
 ) : ServerRepository {

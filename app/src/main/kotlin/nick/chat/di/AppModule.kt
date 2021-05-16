@@ -55,6 +55,8 @@ import nick.chat.data.local.AppDatabase
 import nick.chat.data.local.DefaultDeviceCacheThreshold
 import nick.chat.data.local.DeviceAndMessagesDao
 import nick.chat.data.local.DeviceCacheThreshold
+import nick.chat.data.local.DevicesDao
+import nick.chat.data.local.MessagesDao
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -102,8 +104,18 @@ abstract class AppModule {
         }
 
         @Provides
-        fun chatListItemDao(appDatabase: AppDatabase): DeviceAndMessagesDao {
-            return appDatabase.chatListItemDao()
+        fun devicesDao(appDatabase: AppDatabase): DevicesDao {
+            return appDatabase.devicesDao()
+        }
+
+        @Provides
+        fun messagesDao(appDatabase: AppDatabase): MessagesDao {
+            return appDatabase.messagesDao()
+        }
+
+        @Provides
+        fun deviceAndMessagesDao(appDatabase: AppDatabase): DeviceAndMessagesDao {
+            return appDatabase.deviceAndMessagesDao()
         }
 
         @Provides

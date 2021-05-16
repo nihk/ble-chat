@@ -15,6 +15,7 @@ import nick.chat.data.Resource
 import nick.chat.data.local.Device
 import nick.chat.data.local.DeviceAndMessages
 import nick.chat.data.local.DeviceAndMessagesDao
+import nick.chat.data.local.DevicesDao
 import nick.chat.data.local.Message
 
 interface ChatListRepository {
@@ -23,24 +24,25 @@ interface ChatListRepository {
 
 class ScanningChatListRepository @Inject constructor(
     private val bluetoothScanner: OneShotBluetoothScanner,
-    private val dao: DeviceAndMessagesDao,
+    private val deviceAndMessagesDao: DeviceAndMessagesDao,
+    private val devicesDao: DevicesDao,
     private val deviceCacheThreshold: DeviceCacheThreshold,
     private val currentTime: CurrentTime
 ) : ChatListRepository {
 
     override fun items(): Flow<Resource<List<ChatListItem>>> = flow {
         emit(Resource.Loading())
-        emit(Resource.Loading(dao.selectAll().first().toChatListItems()))
+        emit(Resource.Loading(deviceAndMessagesDao.selectAll().first().toChatListItems()))
 
         val flow = when (val result = bluetoothScanner.result()) {
-            is BluetoothScanner.Result.Error -> dao.selectAll()
+            is BluetoothScanner.Result.Error -> deviceAndMessagesDao.selectAll()
                 .map { items -> Resource.Error(items.toChatListItems(), result.error) }
             is BluetoothScanner.Result.Success -> {
-                dao.insertAndPurgeOldDevices(
+                devicesDao.insertAndPurgeOldDevices(
                     result.scans.toDevices(),
                     deviceCacheThreshold.threshold
                 )
-                dao.selectAll()
+                deviceAndMessagesDao.selectAll()
                     .map { items -> Resource.Success(items.toChatListItems()) }
             }
         }

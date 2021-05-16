@@ -34,9 +34,9 @@ import ble.connecting.BluetoothConnector
 import ble.scanning.AndroidBluetoothScanner
 import ble.scanning.DefaultScanningConfig
 import ble.scanning.BluetoothScanner
-import nick.chat.data.DefaultDeviceCacheThreshold
+import nick.chat.data.local.DefaultDeviceCacheThreshold
 import ble.scanning.DefaultScanningTimeout
-import nick.chat.data.DeviceCacheThreshold
+import nick.chat.data.local.DeviceCacheThreshold
 import ble.scanning.FirstResultBluetoothScanner
 import ble.scanning.OneShotBluetoothScanner
 import ble.scanning.ScanningConfig

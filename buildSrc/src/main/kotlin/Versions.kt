@@ -26,7 +26,7 @@ object Versions {
     const val hiltJetpack = "1.0.0-alpha01"
     const val inject = "1"
     const val junit = "4.13.2"
-    const val kotlin = "1.4.32"
+    const val kotlin = "1.5.0"
     const val ktlintGradle = "10.0.0"
     const val leakCanary = "2.6"
     const val lifecycle = "2.4.0-alpha01"

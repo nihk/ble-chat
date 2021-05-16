@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import nick.chat.data.CurrentTime
-import nick.chat.data.DeviceCacheThreshold
+import nick.chat.data.local.DeviceCacheThreshold
 import nick.chat.data.Resource
 import nick.chat.data.local.Device
 import nick.chat.data.local.DeviceAndMessages

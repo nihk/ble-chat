@@ -28,7 +28,7 @@ class AndroidLocationStates @Inject constructor(
     private val locationManager: LocationManager
 ) : LocationStates {
     override fun states(): Flow<LocationState> {
-        val locationStates = callbackFlow<LocationState> {
+        val locationStates = callbackFlow {
             val broadcastReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
                     if (intent.action != LocationManager.PROVIDERS_CHANGED_ACTION) {

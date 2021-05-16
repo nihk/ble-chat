@@ -11,7 +11,7 @@ interface ScanningConfig {
     val scanSettings: ScanSettings
 }
 
-class AppScanningConfig @Inject constructor(
+class DefaultScanningConfig @Inject constructor(
     bluetoothIdentifiers: BluetoothIdentifiers
 ) : ScanningConfig {
     override val filters: List<ScanFilter> = listOf(

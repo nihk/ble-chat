@@ -19,13 +19,11 @@ import ble.AndroidLocationStates
 import nick.template.data.CurrentTime
 import ble.LocationStates
 import nick.template.data.SystemCurrentTime
-import ble.AppBluetoothIdentifiers
 import nick.template.ui.conversation.BluetoothConversationRepository
 import ble.BluetoothIdentifiers
 import ble.CharacteristicParser
 import nick.template.ui.conversation.ConversationRepository
 import ble.DefaultServiceDataConfig
-import ble.IdentifiableCharacteristicParser
 import ble.ServiceDataConfig
 import ble.advertising.AdvertisingConfig
 import ble.advertising.AndroidBluetoothAdvertiser
@@ -34,7 +32,7 @@ import ble.advertising.DefaultAdvertisingConfig
 import ble.connecting.AndroidBluetoothConnector
 import ble.connecting.BluetoothConnector
 import ble.scanning.AndroidBluetoothScanner
-import ble.scanning.AppScanningConfig
+import ble.scanning.DefaultScanningConfig
 import ble.scanning.BluetoothScanner
 import nick.template.data.DefaultDeviceCacheThreshold
 import ble.scanning.DefaultScanningTimeout
@@ -51,6 +49,8 @@ import ble.usability.BluetoothPermissions
 import ble.usability.BluetoothStates
 import ble.usability.BluetoothUsability
 import ble.usability.DefaultBluetoothUsability
+import nick.template.bluetooth.AppBluetoothIdentifiers
+import nick.template.bluetooth.IdentifiableCharacteristicParser
 import nick.template.data.local.AppDatabase
 import nick.template.data.local.DeviceAndMessagesDao
 import nick.template.ui.chatlist.BroadcastingServerRepository
@@ -136,7 +136,7 @@ abstract class AppModule {
     abstract fun bluetoothPermissions(bluetoothPermissions: AndroidBluetoothPermissions): BluetoothPermissions
 
     @Binds
-    abstract fun scanningConfig(scanningConfig: AppScanningConfig): ScanningConfig
+    abstract fun scanningConfig(scanningConfig: DefaultScanningConfig): ScanningConfig
 
     @Binds
     abstract fun scanningTimeout(scanningTimeout: DefaultScanningTimeout): ScanningTimeout

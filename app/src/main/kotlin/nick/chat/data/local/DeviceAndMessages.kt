@@ -7,7 +7,7 @@ data class DeviceAndMessages(
     @Embedded
     val device: Device,
     @Relation(
-        parentColumn = "messageIdentifier",
+        parentColumn = "identifier",
         entityColumn = "conversation"
     )
     val messages: List<Message>

@@ -51,7 +51,7 @@ class ScanningChatListRepository @Inject constructor(
     private fun List<DeviceAndMessages>.toChatListItems(): List<ChatListItem> {
         return map { deviceAndMessages ->
             ChatListItem(
-                messageIdentifier = deviceAndMessages.device.messageIdentifier.toList(),
+                identifier = deviceAndMessages.device.identifier.toList(),
                 address = deviceAndMessages.device.address,
                 name = deviceAndMessages.device.name,
                 latestMessage = deviceAndMessages.messages.maxByOrNull(Message::timestamp)?.text
@@ -63,7 +63,7 @@ class ScanningChatListRepository @Inject constructor(
         return map { scan ->
             Device(
                 // todo: can this be more safely retrieved?
-                messageIdentifier = scan.services.values.first()!!,
+                identifier = scan.services.values.first()!!,
                 address = scan.address,
                 name = scan.name,
                 lastSeen = currentTime.millis()

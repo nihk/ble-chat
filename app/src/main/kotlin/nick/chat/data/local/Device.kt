@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 class Device(
     @PrimaryKey
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    val messageIdentifier: ByteArray,
+    val identifier: ByteArray,
     val address: String,
     val name: String?,
     val lastSeen: Long

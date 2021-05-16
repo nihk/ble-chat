@@ -3,17 +3,18 @@ package ble.advertising
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.AdvertiseCallback
 import android.bluetooth.le.AdvertiseSettings
+import ble.AdvertisingNotSupported
+import ble.BluetoothError
+import ble.offerSafely
+import ble.requireBle
+import ble.toBluetoothError
+import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import ble.AdvertisingNotSupported
-import ble.BluetoothError
-import ble.requireBle
-import ble.toBluetoothError
-import ble.offerSafely
-import javax.inject.Inject
-import kotlin.time.Duration
-import kotlin.time.milliseconds
 
 data class Advertisement(
     val powerLevel: Int,
@@ -63,7 +64,7 @@ class AndroidBluetoothAdvertiser @Inject constructor(
     private fun AdvertiseSettings.toAdvertisement(): Advertisement {
         return Advertisement(
             powerLevel = txPowerLevel,
-            timeout = timeout.milliseconds
+            timeout = timeout.toDuration(DurationUnit.MILLISECONDS)
         )
     }
 }

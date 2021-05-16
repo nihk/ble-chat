@@ -1,4 +1,4 @@
-package nick.chat.ui
+package ble.usability.ui
 
 import android.content.Context
 import android.content.Intent

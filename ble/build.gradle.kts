@@ -10,4 +10,5 @@ dependencies {
     implementation(Dependencies.Dagger.runtime)
     implementation(Dependencies.Dagger.Hilt.runtime)
     implementation(Dependencies.Kotlin.coroutines)
+    implementation(Dependencies.appCompat)
 }

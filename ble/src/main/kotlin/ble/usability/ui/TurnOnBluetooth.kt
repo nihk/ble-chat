@@ -1,4 +1,4 @@
-package nick.chat.ui
+package ble.usability.ui
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter

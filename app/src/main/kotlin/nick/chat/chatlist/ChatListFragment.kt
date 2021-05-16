@@ -23,6 +23,7 @@ import nick.chat.databinding.ChatListFragmentBinding
 import nick.chat.ui.OpenLocationSettings
 import nick.chat.ui.TurnOnBluetooth
 
+// todo: move activity result/dialog etc. options to dedicated class that takes in a fragment
 // todo: need to clean up messages in database when associated devices are removed
 // todo: automated espresso tests for all these states
 class ChatListFragment @Inject constructor(

@@ -22,5 +22,6 @@ class DefaultScanningConfig @Inject constructor(
 
     override val scanSettings: ScanSettings = ScanSettings.Builder()
         .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+        .setReportDelay(1_000L)
         .build()
 }

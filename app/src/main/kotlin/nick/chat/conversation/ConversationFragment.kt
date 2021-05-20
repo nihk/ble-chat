@@ -19,7 +19,7 @@ import nick.chat.data.stringify
 import nick.chat.databinding.ConversationFragmentBinding
 import nick.chat.ui.SnackbarManager
 
-// todo: set a max character limit on edit text - 16 characters
+// todo: scroll recyclerview from bottom, like most chat apps UX
 class ConversationFragment @Inject constructor(
     private val vmFactory: ConversationViewModel.Factory
 ) : Fragment(R.layout.conversation_fragment) {
@@ -50,7 +50,7 @@ class ConversationFragment @Inject constructor(
         // Hack: this has to be called before viewModel.bluetoothUsability(), otherwise it'll miss
         // any SharedFlow emissions resulting from Bluetooth becoming usable.
         // fixme: use Channel instead: https://old.reddit.com/r/androiddev/comments/nexb2r/migrating_from_livedata_to_kotlins_flow/gykqz3f/
-        viewModel.serverEvents()
+        viewModel.serverEvents
             // No point in advertising while the app is backgrounded.
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { startResult ->
@@ -61,7 +61,7 @@ class ConversationFragment @Inject constructor(
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        viewModel.bluetoothUsability()
+        viewModel.sideEffects
             // Keep restarting whenever onStart hits, so that the usability is as up to date as can be.
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { sideEffect ->
@@ -70,7 +70,7 @@ class ConversationFragment @Inject constructor(
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        viewModel.items()
+        viewModel.items
             .onEach { items ->
                 if (!items.data.isNullOrEmpty()) {
                     adapter.submitList(items.data)

@@ -5,16 +5,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import ble.usability.BluetoothUsability
 import javax.inject.Inject
-import kotlinx.coroutines.flow.Flow
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import nick.chat.chatlist.ServerRepository
-import nick.chat.data.Resource
 
 class ConversationViewModel(
     private val conversation: ByteArray,
@@ -22,35 +23,41 @@ class ConversationViewModel(
     private val conversationRepository: ConversationRepository,
     private val serverRepository: ServerRepository
 ) : ViewModel() {
-
-    private val items = MutableStateFlow<Resource<List<ConversationItem>>?>(null)
-    fun items(): Flow<Resource<List<ConversationItem>>> = items.filterNotNull()
-
-    private val startServerRequests = MutableSharedFlow<Unit>()
-    fun serverEvents(): Flow<ServerRepository.Event> = startServerRequests.flatMapLatest {
-        serverRepository.events()
-    }
-
-    private val connectRequests = MutableSharedFlow<Unit>()
     private val useBluetoothRequests = MutableSharedFlow<Unit>()
 
-    init {
-        useBluetoothRequests
-            .onEach { connectRequests.emit(Unit) }
-            .flatMapLatest { conversationRepository.items(conversation) }
-            .onEach { items.value = it }
-            .launchIn(viewModelScope)
-    }
+    val items = useBluetoothRequests.flatMapLatest { conversationRepository.items(conversation) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT.inWholeMilliseconds),
+            initialValue = null
+        )
+        .filterNotNull()
 
-    fun bluetoothUsability(): Flow<BluetoothUsability.SideEffect> = bluetoothUsability.sideEffects()
+    val serverEvents = useBluetoothRequests.flatMapLatest { serverRepository.events() }
+        .shareIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT.inWholeMilliseconds)
+        )
+
+    val sideEffects = bluetoothUsability.sideEffects()
         .onEach { sideEffect ->
             if (sideEffect == BluetoothUsability.SideEffect.UseBluetooth) {
                 useBluetoothRequests.emit(Unit)
             }
         }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT.inWholeMilliseconds),
+            initialValue = null
+        )
+        .filterNotNull()
 
     fun tryUsingBluetooth() {
         viewModelScope.launch { bluetoothUsability.checkUsability() }
+    }
+
+    companion object {
+        private val TIMEOUT = 5.toDuration(DurationUnit.SECONDS)
     }
 
     class Factory @Inject constructor(

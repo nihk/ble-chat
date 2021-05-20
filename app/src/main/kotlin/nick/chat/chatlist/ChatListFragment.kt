@@ -55,7 +55,8 @@ class ChatListFragment @Inject constructor(
 
         // Hack: this has to be called before viewModel.bluetoothUsability(), otherwise it'll miss
         // any SharedFlow emissions resulting from Bluetooth becoming usable.
-        viewModel.serverEvents()
+        // fixme: change to Channel so this hack isn't needed
+        viewModel.serverEvents
             // No point in advertising while the app is backgrounded.
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { startResult ->
@@ -66,7 +67,7 @@ class ChatListFragment @Inject constructor(
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        viewModel.bluetoothUsability()
+        viewModel.sideEffects
             // Keep restarting whenever onStart hits, so that the usability is as up to date as can be.
             .flowWithLifecycle(viewLifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .onEach { sideEffect ->
@@ -75,7 +76,7 @@ class ChatListFragment @Inject constructor(
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        viewModel.items()
+        viewModel.items
             .onEach { resource: Resource<List<ChatListItem>> ->
                 if (resource !is Resource.Loading) {
                     binding.swipeRefreshLayout.isRefreshing = false

@@ -6,6 +6,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import javax.inject.Inject
@@ -37,41 +38,41 @@ class ChatListFragment @Inject constructor(
         binding.retry.setOnClickListener { chatListViewModel.refresh() }
         binding.swipeRefreshLayout.setOnRefreshListener { chatListViewModel.refresh() }
 
-        mainViewModel.useBluetooth
-            .onEach { chatListViewModel.refresh() }
+        mainViewModel.sideEffects
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+            .onEach { sideEffect -> chatListViewModel.handleSideEffect(sideEffect) }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        chatListViewModel.items
-            .onEach { resource: Resource<List<ChatListItem>> ->
-                snackbarManager.dismiss()
-                if (resource !is Resource.Loading) {
-                    binding.swipeRefreshLayout.isRefreshing = false
-                }
-                // fixme: improve readability here
-                binding.topProgressBar.isVisible = resource is Resource.Loading
-                    && !resource.data.isNullOrEmpty()
-                binding.centerProgressBar.isVisible = resource is Resource.Loading
-                    && resource.data.isNullOrEmpty()
+        chatListViewModel.items.onEach { resource: Resource<List<ChatListItem>> ->
+            snackbarManager.dismiss()
+            if (resource !is Resource.Loading) {
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
+            // fixme: improve readability here
+            binding.topProgressBar.isVisible = resource is Resource.Loading
+                && !resource.data.isNullOrEmpty()
+            binding.centerProgressBar.isVisible = resource is Resource.Loading
+                && resource.data.isNullOrEmpty()
 
-                // fixme: don't make this overlap with snackbar when there's an error + empty results
-                binding.noResults.isVisible = resource !is Resource.Loading
-                    && resource.data.isNullOrEmpty()
-                    && adapter.currentList.isEmpty()
+            // fixme: don't make this overlap with snackbar when there's an error + empty results
+            binding.noResults.isVisible = resource !is Resource.Loading
+                && resource.data.isNullOrEmpty()
+                && adapter.currentList.isEmpty()
 
-                if (!resource.data.isNullOrEmpty()) {
-                    adapter.submitList(resource.data)
-                }
+            if (!resource.data.isNullOrEmpty()) {
+                adapter.submitList(resource.data)
+            }
 
-                if (resource is Resource.Error) {
-                    snackbarManager.showSnackbar(
-                        view = view,
-                        message = resource.throwable.message.toString(),
-                        buttonText = "Retry"
-                    ) {
-                        chatListViewModel.refresh()
-                    }
+            if (resource is Resource.Error) {
+                snackbarManager.showSnackbar(
+                    view = view,
+                    message = resource.throwable.message.toString(),
+                    buttonText = "Retry"
+                ) {
+                    chatListViewModel.refresh()
                 }
             }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
+        }
+        .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 }

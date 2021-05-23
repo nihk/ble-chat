@@ -21,8 +21,7 @@ class MainViewModel(
     private val bluetoothUsability: BluetoothUsability,
     private val serverRepository: ServerRepository
 ) : ViewModel() {
-    // todo: isolate this to its own shared VM, so Fragments don't have access to serverEvents/sideEffects
-    val useBluetooth = MutableSharedFlow<Unit>(
+    private val startServer = MutableSharedFlow<Unit>(
         // This Flow can receive events before subscribers are present.
         replay = 1
     )
@@ -30,7 +29,7 @@ class MainViewModel(
     val sideEffects = bluetoothUsability.sideEffects()
         .onEach { sideEffect ->
             if (sideEffect == BluetoothUsability.SideEffect.UseBluetooth) {
-                useBluetooth.emit(Unit)
+                startServer.emit(Unit)
             }
         }
         .stateIn(
@@ -40,9 +39,7 @@ class MainViewModel(
         )
         .filterNotNull()
 
-    val serverEvents = useBluetooth.flatMapLatest {
-        serverRepository.events()
-    }
+    val serverEvents = startServer.flatMapLatest { serverRepository.events() }
         .shareIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(SUBSCRIBE_TIMEOUT.inWholeMilliseconds)

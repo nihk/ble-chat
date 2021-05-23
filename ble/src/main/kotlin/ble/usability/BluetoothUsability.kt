@@ -15,6 +15,8 @@ interface BluetoothUsability {
     suspend fun checkUsability()
 
     sealed class SideEffect {
+        // Required as a signal that resubscription happened
+        object Initial : SideEffect()
         object UseBluetooth : SideEffect()
         data class RequestPermissions(
             val permissions: List<String>,
@@ -53,6 +55,7 @@ class DefaultBluetoothUsability @Inject constructor(
                     }
                 }
             }
+            .onStart { emit(SideEffect.Initial) }
     }
 
     override suspend fun checkUsability() {

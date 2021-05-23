@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import ble.usability.BluetoothUsability
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -34,8 +35,8 @@ class ConversationFragment @Inject constructor(
         val adapter = ConversationItemAdapter()
         binding.recyclerView.adapter = adapter
 
-        mainViewModel.useBluetooth()
-            .filter { it }
+        mainViewModel.sideEffects
+            .filter { it is BluetoothUsability.SideEffect.UseBluetooth }
             .flatMapLatest { conversationViewModel.items }
             .onEach { items ->
                 if (!items.data.isNullOrEmpty()) {

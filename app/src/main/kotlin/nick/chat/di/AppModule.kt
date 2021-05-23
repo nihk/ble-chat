@@ -43,10 +43,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import nick.chat.bluetooth.AppBluetoothIdentifiers
-import nick.chat.chatlist.BroadcastingServerRepository
+import nick.chat.ui.BroadcastingServerRepository
 import nick.chat.chatlist.ChatListRepository
 import nick.chat.chatlist.ScanningChatListRepository
-import nick.chat.chatlist.ServerRepository
+import nick.chat.ui.ServerRepository
 import nick.chat.conversation.BluetoothConversationRepository
 import nick.chat.conversation.ConversationRepository
 import nick.chat.data.CurrentTime

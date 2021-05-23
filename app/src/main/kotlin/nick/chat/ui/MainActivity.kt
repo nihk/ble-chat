@@ -21,12 +21,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.chat.R
 import nick.chat.chatlist.ChatListFragment
-import nick.chat.chatlist.ServerRepository
 import nick.chat.conversation.ConversationFragment
 import nick.chat.databinding.MainActivityBinding
 import nick.chat.di.MainEntryPoint
 import nick.chat.navigation.AppNavGraph
 
+// fixme: scanning timeout doesn't show error
+//  pull to refresh on chat list fragment doesn't do anything
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
@@ -59,9 +60,9 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, entryPoint.mainViewModelFactory)
             .get(MainViewModel::class.java)
 
-        // Hack: this has to be called before viewModel.bluetoothUsability(), otherwise it'll miss
+        // Hack: this has to be called before viewModel.sideEffects, otherwise it'll miss
         // any SharedFlow emissions resulting from Bluetooth becoming usable.
-        // fixme: change to Channel so this hack isn't needed
+        // fixme: change to Channel so this hack isn't needed (?)
         viewModel.serverEvents
             // No point in advertising while the app is backgrounded.
             .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)

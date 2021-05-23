@@ -8,6 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
+import ble.usability.BluetoothUsability
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -35,12 +36,11 @@ class ChatListFragment @Inject constructor(
         val adapter = ChatListItemAdapter { item -> openConversationCallback.with(item) }
         binding.recyclerView.addItemDecoration(DividerItemDecoration(view.context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
-        binding.retry.setOnClickListener { mainViewModel.tryUsingBluetooth() }
-        binding.swipeRefreshLayout.setOnRefreshListener { mainViewModel.tryUsingBluetooth() }
+        binding.retry.setOnClickListener { chatListViewModel.refresh() }
+        binding.swipeRefreshLayout.setOnRefreshListener { chatListViewModel.refresh() }
 
-        mainViewModel.useBluetooth()
-            .filter { it }
-            .flatMapLatest { chatListViewModel.items }
+        mainViewModel.sideEffects
+            .flatMapLatest { sideEffect -> chatListViewModel.items(sideEffect) }
             .onEach { resource: Resource<List<ChatListItem>> ->
                 if (resource !is Resource.Loading) {
                     binding.swipeRefreshLayout.isRefreshing = false

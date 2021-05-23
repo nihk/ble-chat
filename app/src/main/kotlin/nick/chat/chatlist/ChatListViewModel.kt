@@ -5,21 +5,43 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.savedstate.SavedStateRegistryOwner
+import ble.usability.BluetoothUsability
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import nick.chat.data.Resource
 
 class ChatListViewModel(
     chatListRepository: ChatListRepository
 ) : ViewModel() {
-    val items = chatListRepository.items()
+    private val refresh = MutableSharedFlow<Unit>(replay = 1)
+    private var refreshWhenBluetoothCanBeUsed = true
+
+    private val items = refresh.flatMapLatest { chatListRepository.items() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = null
         )
         .filterNotNull()
+
+    fun items(sideEffect: BluetoothUsability.SideEffect): Flow<Resource<List<ChatListItem>>> {
+        val canUseBluetooth = sideEffect == BluetoothUsability.SideEffect.UseBluetooth
+        if (refreshWhenBluetoothCanBeUsed && canUseBluetooth) {
+            refresh()
+        }
+        refreshWhenBluetoothCanBeUsed = !canUseBluetooth
+        return items
+    }
+
+    fun refresh() {
+        viewModelScope.launch { refresh.emit(Unit) }
+    }
 
     class Factory @Inject constructor(
         private val chatListRepository: ChatListRepository

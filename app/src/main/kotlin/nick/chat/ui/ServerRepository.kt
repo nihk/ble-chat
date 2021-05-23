@@ -1,4 +1,4 @@
-package nick.chat.chatlist
+package nick.chat.ui
 
 import ble.BluetoothError
 import ble.advertising.BluetoothAdvertiser
@@ -7,6 +7,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.transform
 import nick.chat.bluetooth.CharacteristicParser
 import nick.chat.data.CurrentTime

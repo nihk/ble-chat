@@ -9,16 +9,13 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import nick.chat.chatlist.ServerRepository
 
 class MainViewModel(
     private val bluetoothUsability: BluetoothUsability,
@@ -26,13 +23,12 @@ class MainViewModel(
 ) : ViewModel() {
     private val snackbars = MutableSharedFlow<SnackbarRetryBluetooth>()
     fun snackbars(): Flow<SnackbarRetryBluetooth> = snackbars
-    private val useBluetooth = MutableStateFlow(false)
-    fun useBluetooth(): Flow<Boolean> = useBluetooth
+    private val useBluetooth = MutableSharedFlow<Unit>()
 
     val sideEffects = bluetoothUsability.sideEffects()
         .onEach { sideEffect ->
             if (sideEffect == BluetoothUsability.SideEffect.UseBluetooth) {
-                useBluetooth.emit(true)
+                useBluetooth.emit(Unit)
             }
         }
         .stateIn(
@@ -42,8 +38,7 @@ class MainViewModel(
         )
         .filterNotNull()
 
-    val serverEvents = useBluetooth.filter { it }
-        .flatMapLatest { serverRepository.events() }
+    val serverEvents = useBluetooth.flatMapLatest { serverRepository.events() }
         .shareIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(SUBSCRIBE_TIMEOUT.inWholeMilliseconds)

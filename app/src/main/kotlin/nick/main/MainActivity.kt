@@ -5,7 +5,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -28,7 +27,6 @@ import nick.chat.navigation.AppNavGraph
 import nick.chat.ui.SnackbarManager
 import nick.chat.ui.entryPoint
 
-// fixme: backgrounding app for more than 5 seconds breaks serving/advertising
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
@@ -61,25 +59,22 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, entryPoint.mainViewModelFactory)
             .get(MainViewModel::class.java)
 
-        // Hack: this has to be called before viewModel.sideEffects, otherwise it'll miss
-        // any SharedFlow emissions resulting from Bluetooth becoming usable.
-        // fixme: change to Channel so this hack isn't needed (?)
+        viewModel.sideEffects
+            .flowWithLifecycle(lifecycle)
+            .onEach { sideEffect ->
+                snackbarManager.dismiss()
+                handleSideEffect(sideEffect, binding)
+            }
+            .launchIn(lifecycleScope)
+
         viewModel.serverEvents
             // No point in advertising while the app is backgrounded.
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+            .flowWithLifecycle(lifecycle)
             .onEach { startResult ->
                 when (startResult) {
                     is ServerRepository.Event.AdvertisingFailed -> TODO("Show dialog?")
                     is ServerRepository.Event.Disconnected -> {}
                 }
-            }
-            .launchIn(lifecycleScope)
-
-        viewModel.sideEffects
-            .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-            .onEach { sideEffect ->
-                snackbarManager.dismiss()
-                handleSideEffect(sideEffect, binding)
             }
             .launchIn(lifecycleScope)
     }

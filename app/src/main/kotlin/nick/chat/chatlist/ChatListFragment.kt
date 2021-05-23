@@ -6,6 +6,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import javax.inject.Inject
@@ -40,6 +41,7 @@ class ChatListFragment @Inject constructor(
         binding.swipeRefreshLayout.setOnRefreshListener { chatListViewModel.refresh() }
 
         mainViewModel.sideEffects
+            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .flatMapLatest { sideEffect -> chatListViewModel.items(sideEffect) }
             .onEach { resource: Resource<List<ChatListItem>> ->
                 snackbarManager.dismiss()

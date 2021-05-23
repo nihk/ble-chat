@@ -21,7 +21,10 @@ class MainViewModel(
     private val bluetoothUsability: BluetoothUsability,
     private val serverRepository: ServerRepository
 ) : ViewModel() {
-    private val useBluetooth = MutableSharedFlow<Unit>()
+    private val useBluetooth = MutableSharedFlow<Unit>(
+        // This Flow can be emitted to before subscribers are present.
+        replay = 1
+    )
 
     val sideEffects = bluetoothUsability.sideEffects()
         .onEach { sideEffect ->

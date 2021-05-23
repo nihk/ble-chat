@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        tools:context=".ui.MainActivity">
+        tools:context="nick.main.MainActivity">
 
         <ProgressBar
             android:id="@+id/top_progress_bar"

@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
         <activity
-            android:name="nick.chat.ui.MainActivity"
+            android:name="nick.main.MainActivity"
             android:theme="@style/Theme.BleChat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

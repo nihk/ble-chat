@@ -5,7 +5,7 @@ import androidx.navigation.NavController
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
-import nick.chat.ui.MainViewModel
+import nick.main.MainViewModel
 
 @EntryPoint
 @InstallIn(ActivityComponent::class)

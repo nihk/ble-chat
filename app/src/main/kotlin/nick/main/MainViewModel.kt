@@ -1,4 +1,4 @@
-package nick.chat.ui
+package nick.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+// todo: combine sideEffects and serverEvents into one flow?
 class MainViewModel(
     private val bluetoothUsability: BluetoothUsability,
     private val serverRepository: ServerRepository
@@ -35,7 +36,9 @@ class MainViewModel(
         )
         .filterNotNull()
 
-    val serverEvents = useBluetooth.flatMapLatest { serverRepository.events() }
+    val serverEvents = useBluetooth.flatMapLatest {
+        serverRepository.events()
+    }
         .shareIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(SUBSCRIBE_TIMEOUT.inWholeMilliseconds)

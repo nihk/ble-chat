@@ -17,8 +17,9 @@ import nick.chat.R
 import nick.chat.data.bytify
 import nick.chat.data.stringify
 import nick.chat.databinding.ConversationFragmentBinding
-import nick.chat.ui.MainViewModel
+import nick.main.MainViewModel
 
+// fixme: after 5 seconds of backgrounding, scanning should restart
 // todo: scroll recyclerview from bottom, like most chat apps UX
 class ConversationFragment @Inject constructor(
     private val conversationVmFactory: ConversationViewModel.Factory,

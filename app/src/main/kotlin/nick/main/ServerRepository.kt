@@ -1,4 +1,4 @@
-package nick.chat.ui
+package nick.main
 
 import ble.BluetoothError
 import ble.advertising.BluetoothAdvertiser

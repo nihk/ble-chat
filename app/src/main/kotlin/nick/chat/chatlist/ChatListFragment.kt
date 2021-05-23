@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.onEach
 import nick.chat.R
 import nick.chat.data.Resource
 import nick.chat.databinding.ChatListFragmentBinding
-import nick.chat.ui.MainViewModel
+import nick.main.MainViewModel
 import nick.chat.ui.SnackbarManager
 
-// todo: move activity result/dialog etc. options to dedicated class that takes in a fragment
+// fixme: repository.items isn't refreshing after 5 seconds of backgrounded
 // todo: need to clean up messages in database when associated devices are removed
 // todo: automated espresso tests for all these states
 class ChatListFragment @Inject constructor(

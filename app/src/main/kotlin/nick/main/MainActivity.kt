@@ -1,4 +1,4 @@
-package nick.chat.ui
+package nick.main
 
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
@@ -25,6 +25,8 @@ import nick.chat.conversation.ConversationFragment
 import nick.chat.databinding.MainActivityBinding
 import nick.chat.di.MainEntryPoint
 import nick.chat.navigation.AppNavGraph
+import nick.chat.ui.SnackbarManager
+import nick.chat.ui.entryPoint
 
 // fixme: backgrounding app for more than 5 seconds breaks serving/advertising
 @AndroidEntryPoint

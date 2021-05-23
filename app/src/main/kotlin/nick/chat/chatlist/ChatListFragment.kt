@@ -6,20 +6,17 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import javax.inject.Inject
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.chat.R
 import nick.chat.data.Resource
 import nick.chat.databinding.ChatListFragmentBinding
-import nick.main.MainViewModel
 import nick.chat.ui.SnackbarManager
+import nick.main.MainViewModel
 
-// fixme: repository.items isn't refreshing after 5 seconds of backgrounded
 // todo: need to clean up messages in database when associated devices are removed
 // todo: automated espresso tests for all these states
 class ChatListFragment @Inject constructor(
@@ -40,9 +37,11 @@ class ChatListFragment @Inject constructor(
         binding.retry.setOnClickListener { chatListViewModel.refresh() }
         binding.swipeRefreshLayout.setOnRefreshListener { chatListViewModel.refresh() }
 
-        mainViewModel.sideEffects
-            .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-            .flatMapLatest { sideEffect -> chatListViewModel.items(sideEffect) }
+        mainViewModel.useBluetooth
+            .onEach { chatListViewModel.refresh() }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+
+        chatListViewModel.items
             .onEach { resource: Resource<List<ChatListItem>> ->
                 snackbarManager.dismiss()
                 if (resource !is Resource.Loading) {

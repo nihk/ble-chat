@@ -37,6 +37,7 @@ class ConversationFragment @Inject constructor(
         val adapter = ConversationItemAdapter()
         binding.recyclerView.adapter = adapter
 
+        // fixme: use refresh-style template that ChatListFragment/ViewModel does
         mainViewModel.sideEffects
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .filter { it is BluetoothUsability.SideEffect.UseBluetooth }

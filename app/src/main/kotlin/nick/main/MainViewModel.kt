@@ -21,8 +21,9 @@ class MainViewModel(
     private val bluetoothUsability: BluetoothUsability,
     private val serverRepository: ServerRepository
 ) : ViewModel() {
-    private val useBluetooth = MutableSharedFlow<Unit>(
-        // This Flow can be emitted to before subscribers are present.
+    // todo: isolate this to its own shared VM, so Fragments don't have access to serverEvents/sideEffects
+    val useBluetooth = MutableSharedFlow<Unit>(
+        // This Flow can receive events before subscribers are present.
         replay = 1
     )
 

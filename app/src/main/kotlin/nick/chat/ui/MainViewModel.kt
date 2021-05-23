@@ -7,7 +7,6 @@ import ble.usability.BluetoothUsability
 import javax.inject.Inject
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
@@ -21,8 +20,6 @@ class MainViewModel(
     private val bluetoothUsability: BluetoothUsability,
     private val serverRepository: ServerRepository
 ) : ViewModel() {
-    private val snackbars = MutableSharedFlow<SnackbarRetryBluetooth>()
-    fun snackbars(): Flow<SnackbarRetryBluetooth> = snackbars
     private val useBluetooth = MutableSharedFlow<Unit>()
 
     val sideEffects = bluetoothUsability.sideEffects()
@@ -48,20 +45,6 @@ class MainViewModel(
         viewModelScope.launch { bluetoothUsability.checkUsability() }
     }
 
-    fun promptRetryBluetooth(
-        message: String,
-        buttonText: String
-    ) {
-        viewModelScope.launch {
-            snackbars.emit(
-                SnackbarRetryBluetooth(
-                    message = message,
-                    buttonText = buttonText
-                )
-            )
-        }
-    }
-
     companion object {
         private val SUBSCRIBE_TIMEOUT = 5.toDuration(DurationUnit.SECONDS)
     }
@@ -75,9 +58,4 @@ class MainViewModel(
             return MainViewModel(bluetoothUsability, serverRepository) as T
         }
     }
-
-    data class SnackbarRetryBluetooth(
-        val message: String,
-        val buttonText: String
-    )
 }

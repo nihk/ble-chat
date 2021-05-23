@@ -2,8 +2,9 @@ package nick.chat.ui
 
 import android.view.View
 import com.google.android.material.snackbar.Snackbar
+import javax.inject.Inject
 
-class SnackbarManager {
+class SnackbarManager @Inject constructor()  {
     private var snackbar: Snackbar? = null
 
     fun showSnackbar(

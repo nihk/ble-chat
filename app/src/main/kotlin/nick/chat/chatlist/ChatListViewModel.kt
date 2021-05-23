@@ -28,15 +28,14 @@ class ChatListViewModel(
             started = SharingStarted.Lazily,
             initialValue = null
         )
-        .filterNotNull()
 
     fun items(sideEffect: BluetoothUsability.SideEffect): Flow<Resource<List<ChatListItem>>> {
         val canUseBluetooth = sideEffect == BluetoothUsability.SideEffect.UseBluetooth
         if (refreshWhenBluetoothCanBeUsed && canUseBluetooth) {
             refresh()
         }
-        refreshWhenBluetoothCanBeUsed = !canUseBluetooth
-        return items
+        refreshWhenBluetoothCanBeUsed = !canUseBluetooth || items.value is Resource.Error
+        return items.filterNotNull()
     }
 
     fun refresh() {

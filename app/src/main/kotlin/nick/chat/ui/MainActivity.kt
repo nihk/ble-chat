@@ -26,8 +26,7 @@ import nick.chat.databinding.MainActivityBinding
 import nick.chat.di.MainEntryPoint
 import nick.chat.navigation.AppNavGraph
 
-// fixme: scanning timeout doesn't show error
-//  pull to refresh on chat list fragment doesn't do anything
+// fixme: backgrounding app for more than 5 seconds breaks serving/advertising
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
@@ -81,18 +80,6 @@ class MainActivity : AppCompatActivity() {
                 handleSideEffect(sideEffect, binding)
             }
             .launchIn(lifecycleScope)
-
-        // todo: this is ugly
-        viewModel.snackbars()
-            .onEach { details ->
-                snackbarManager.showSnackbar(
-                    view = binding.root,
-                    message = details.message,
-                    buttonText = details.buttonText
-                ) {
-                    viewModel.tryUsingBluetooth()
-                }
-            }
     }
 
     private fun createNavGraph(navController: NavController) {

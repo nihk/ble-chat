@@ -7,7 +7,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.transform
 import nick.chat.bluetooth.CharacteristicParser
 import nick.chat.data.CurrentTime

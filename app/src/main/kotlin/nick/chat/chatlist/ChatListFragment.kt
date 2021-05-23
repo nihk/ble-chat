@@ -8,9 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
-import ble.usability.BluetoothUsability
 import javax.inject.Inject
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -18,6 +16,7 @@ import nick.chat.R
 import nick.chat.data.Resource
 import nick.chat.databinding.ChatListFragmentBinding
 import nick.chat.ui.MainViewModel
+import nick.chat.ui.SnackbarManager
 
 // todo: move activity result/dialog etc. options to dedicated class that takes in a fragment
 // todo: need to clean up messages in database when associated devices are removed
@@ -25,7 +24,8 @@ import nick.chat.ui.MainViewModel
 class ChatListFragment @Inject constructor(
     private val chatListVmFactory: ChatListViewModel.Factory,
     private val mainViewModelFactory: MainViewModel.Factory,
-    private val openConversationCallback: OpenConversationCallback
+    private val openConversationCallback: OpenConversationCallback,
+    private val snackbarManager: SnackbarManager
 ) : Fragment(R.layout.chat_list_fragment) {
 
     private val chatListViewModel: ChatListViewModel by viewModels { chatListVmFactory.create(this) }
@@ -42,6 +42,7 @@ class ChatListFragment @Inject constructor(
         mainViewModel.sideEffects
             .flatMapLatest { sideEffect -> chatListViewModel.items(sideEffect) }
             .onEach { resource: Resource<List<ChatListItem>> ->
+                snackbarManager.dismiss()
                 if (resource !is Resource.Loading) {
                     binding.swipeRefreshLayout.isRefreshing = false
                 }
@@ -61,10 +62,13 @@ class ChatListFragment @Inject constructor(
                 }
 
                 if (resource is Resource.Error) {
-                    mainViewModel.promptRetryBluetooth(
+                    snackbarManager.showSnackbar(
+                        view = view,
                         message = resource.throwable.message.toString(),
                         buttonText = "Retry"
-                    )
+                    ) {
+                        chatListViewModel.refresh()
+                    }
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)

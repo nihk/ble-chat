@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
+import ble.usability.BluetoothUsability
 import javax.inject.Inject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -40,7 +41,10 @@ class ChatListFragment @Inject constructor(
 
         mainViewModel.sideEffects
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-            .onEach { sideEffect -> chatListViewModel.handleSideEffect(sideEffect) }
+            .onEach { sideEffect ->
+                val canUseBluetooth = sideEffect == BluetoothUsability.SideEffect.UseBluetooth
+                chatListViewModel.setCanUseBluetooth(canUseBluetooth)
+            }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         chatListViewModel.items.onEach { resource: Resource<List<ChatListItem>> ->

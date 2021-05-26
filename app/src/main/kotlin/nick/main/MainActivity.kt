@@ -31,9 +31,17 @@ import nick.chat.ui.entryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private val snackbarManager = SnackbarManager()
-    private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
-    private lateinit var turnOnBluetoothLauncher: ActivityResultLauncher<Unit>
-    private lateinit var turnOnLocationLauncher: ActivityResultLauncher<Unit>
+    private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        viewModel.tryUsingBluetooth()
+    }
+    private val turnOnBluetoothLauncher = registerForActivityResult(TurnOnBluetooth()) { didTurnOn ->
+        if (!didTurnOn) {
+            viewModel.tryUsingBluetooth()
+        } // else BluetoothStates will emit an On event, retriggering the ViewModel flow automatically.
+    }
+    private val turnOnLocationLauncher = registerForActivityResult(OpenLocationSettings()) {
+        // User navigating back to app will automatically resubscribe to evaluating Bluetooth usability.
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val entryPoint = entryPoint<MainEntryPoint>()
@@ -42,19 +50,6 @@ class MainActivity : AppCompatActivity() {
         val binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         createNavGraph(entryPoint.navController)
-
-        // todo: try inlining this assignment with fields
-        requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            viewModel.tryUsingBluetooth()
-        }
-        turnOnBluetoothLauncher = registerForActivityResult(TurnOnBluetooth()) { didTurnOn ->
-            if (!didTurnOn) {
-                viewModel.tryUsingBluetooth()
-            } // else BluetoothStates will emit an On event, retriggering the ViewModel flow automatically.
-        }
-        turnOnLocationLauncher = registerForActivityResult(OpenLocationSettings()) {
-            // User navigating back to app will automatically resubscribe to evaluating Bluetooth usability.
-        }
 
         viewModel = ViewModelProvider(this, entryPoint.mainViewModelFactory)
             .get(MainViewModel::class.java)

@@ -21,7 +21,8 @@ class DefaultScanningConfig @Inject constructor(
     )
 
     override val scanSettings: ScanSettings = ScanSettings.Builder()
-        .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
-        .setReportDelay(1_000L)
+        // fixme: why does bulk scan not show device now / can't establish connection?
+//        .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+//        .setReportDelay(1_000L)
         .build()
 }

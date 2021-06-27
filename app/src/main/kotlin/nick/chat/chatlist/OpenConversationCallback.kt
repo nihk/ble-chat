@@ -15,7 +15,7 @@ class DefaultOpenConversationCallback @Inject constructor(
     override fun with(item: ChatListItem) {
         navController.navigate(
             AppNavGraph.Actions.toConversation,
-            ConversationFragment.bundle(item.address, item.identifier.toByteArray())
+            ConversationFragment.bundle(item.name, item.address, item.identifier.toByteArray())
         )
     }
 }

@@ -20,6 +20,7 @@ import nick.main.MainViewModel
 
 // todo: need to clean up messages in database when associated devices are removed
 // todo: automated espresso tests for all these states
+// fixme: why is device name suddenly always `null`?
 class ChatListFragment @Inject constructor(
     private val chatListVmFactory: ChatListViewModel.Factory,
     private val mainViewModelFactory: MainViewModel.Factory,
@@ -37,6 +38,8 @@ class ChatListFragment @Inject constructor(
         binding.recyclerView.adapter = adapter
         binding.retry.setOnClickListener { chatListViewModel.refresh() }
         binding.swipeRefreshLayout.setOnRefreshListener { chatListViewModel.refresh() }
+
+        mainViewModel.setTitle("BLE Chat")
 
         mainViewModel.sideEffects
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)

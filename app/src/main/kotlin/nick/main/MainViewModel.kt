@@ -7,7 +7,9 @@ import ble.usability.BluetoothUsability
 import javax.inject.Inject
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -45,12 +47,15 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(SUBSCRIBE_TIMEOUT.inWholeMilliseconds)
         )
 
+    private val titles = MutableStateFlow<String?>(null)
+    fun titles(): Flow<String> = titles.filterNotNull()
+
     fun tryUsingBluetooth() {
         viewModelScope.launch { bluetoothUsability.checkUsability() }
     }
 
-    fun connectTo(address: String) {
-
+    fun setTitle(title: String) {
+        titles.value = title
     }
 
     companion object {

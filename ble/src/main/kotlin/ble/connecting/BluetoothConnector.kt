@@ -22,6 +22,7 @@ interface BluetoothConnector {
     sealed class State {
         object Initial : State()
         object Connected : State()
+        data class Error(val status: Int) : State()
         object DiscoveredServices : State()
         class CharacteristicWritten(val data: ByteArray): State()
     }
@@ -38,11 +39,12 @@ class AndroidBluetoothConnector @Inject constructor(
     private var characteristic: BluetoothGattCharacteristic? = null
     private var bluetoothGatt: BluetoothGatt? = null
 
-    override fun connect(address: String) = callbackFlow<BluetoothConnector.State> {
+    override fun connect(address: String) = callbackFlow {
         val callback = object : BluetoothGattCallback() {
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
                 Log.d("asdf", "onConnectionStateChange, status: $status")
                 if (newState != BluetoothProfile.STATE_CONNECTED || status != BluetoothGatt.GATT_SUCCESS) {
+                    offerSafely(BluetoothConnector.State.Error(status))
                     return
                 }
 
@@ -76,19 +78,20 @@ class AndroidBluetoothConnector @Inject constructor(
         }
 
         val bluetoothDevice = bluetoothAdapter.getRemoteDevice(address)
+        Log.d("asdf", "connecting to address: $address")
 
         // todo: emit?
-        val bluetoothGatt = bluetoothDevice.connectGatt(
+        bluetoothGatt = bluetoothDevice.connectGatt(
             context, false, callback
         )
 
         offerSafely(BluetoothConnector.State.Initial)
 
         awaitClose {
-            bluetoothGatt.disconnect()
-            bluetoothGatt.close()
-            this@AndroidBluetoothConnector.characteristic = null
-            this@AndroidBluetoothConnector.bluetoothGatt = null
+            bluetoothGatt?.disconnect()
+            bluetoothGatt?.close()
+            characteristic = null
+            bluetoothGatt = null
         }
     }
 

@@ -14,7 +14,15 @@ class ConversationViewModel(
     private val conversationRepository: ConversationRepository
 ) : ViewModel() {
 
-    val items = conversationRepository.items(conversation, address)
+    val items = conversationRepository.items(conversation)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = null
+        )
+        .filterNotNull()
+
+    val connection = conversationRepository.connectTo(conversation, address)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,

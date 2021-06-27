@@ -72,6 +72,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             .launchIn(lifecycleScope)
+
+        viewModel.titles()
+            .onEach { title ->
+                setTitle(title)
+            }
+            .launchIn(lifecycleScope)
     }
 
     private fun createNavGraph(navController: NavController) {

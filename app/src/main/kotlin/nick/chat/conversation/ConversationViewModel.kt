@@ -10,10 +10,11 @@ import kotlinx.coroutines.flow.stateIn
 
 class ConversationViewModel(
     conversation: ByteArray,
-    conversationRepository: ConversationRepository
+    address: String,
+    private val conversationRepository: ConversationRepository
 ) : ViewModel() {
 
-    val items = conversationRepository.items(conversation)
+    val items = conversationRepository.items(conversation, address)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
@@ -21,15 +22,23 @@ class ConversationViewModel(
         )
         .filterNotNull()
 
+    fun send(input: String) {
+        conversationRepository.send(input)
+    }
+
     class Factory @Inject constructor(
         private val conversationRepository: ConversationRepository
     ) {
-        fun create(conversation: ByteArray): ViewModelProvider.Factory {
+        fun create(
+            conversation: ByteArray,
+            address: String
+        ): ViewModelProvider.Factory {
             return object : ViewModelProvider.Factory {
                 override fun <T : ViewModel?> create(modelClass: Class<T>): T {
                     @Suppress("UNCHECKED_CAST")
                     return ConversationViewModel(
                         conversation,
+                        address,
                         conversationRepository
                     ) as T
                 }

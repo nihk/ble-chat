@@ -28,7 +28,7 @@ class ConversationFragment @Inject constructor(
 ) : Fragment(R.layout.conversation_fragment) {
     private val address: String get() = requireArguments().getString(KEY_ADDRESS)!!
     private val identifier: ByteArray get() = requireArguments().getString(KEY_IDENTIFIER)?.bytify()!!
-    private val conversationViewModel: ConversationViewModel by viewModels { conversationVmFactory.create(identifier) }
+    private val conversationViewModel: ConversationViewModel by viewModels { conversationVmFactory.create(identifier, address) }
     private val mainViewModel: MainViewModel by activityViewModels { mainViewModelFactory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -36,18 +36,28 @@ class ConversationFragment @Inject constructor(
         val binding = ConversationFragmentBinding.bind(view)
         val adapter = ConversationItemAdapter()
         binding.recyclerView.adapter = adapter
+        bind(binding)
 
         // fixme: use refresh-style template that ChatListFragment/ViewModel does
         mainViewModel.sideEffects
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .filter { it is BluetoothUsability.SideEffect.UseBluetooth }
             .flatMapLatest { conversationViewModel.items }
-            .onEach { items ->
-                if (!items.data.isNullOrEmpty()) {
-                    adapter.submitList(items.data)
+            .onEach { resource: ConversationResource ->
+                if (!resource.items.isNullOrEmpty()) {
+                    adapter.submitList(resource.items)
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun bind(binding: ConversationFragmentBinding) {
+        binding.send.setOnClickListener {
+            val input = binding.input.text.toString()
+            if (input.isBlank()) return@setOnClickListener
+            binding.input.text.clear()
+            conversationViewModel.send(input)
+        }
     }
 
     companion object {

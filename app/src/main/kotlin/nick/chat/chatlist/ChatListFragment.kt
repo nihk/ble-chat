@@ -14,7 +14,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import nick.chat.R
-import nick.chat.data.Resource
 import nick.chat.databinding.ChatListFragmentBinding
 import nick.chat.ui.SnackbarManager
 import nick.main.MainViewModel
@@ -47,27 +46,27 @@ class ChatListFragment @Inject constructor(
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        chatListViewModel.items.onEach { resource: Resource<List<ChatListItem>> ->
+        chatListViewModel.items.onEach { resource: ChatListResource ->
             snackbarManager.dismiss()
-            if (resource !is Resource.Loading) {
+            if (resource !is ChatListResource.Loading) {
                 binding.swipeRefreshLayout.isRefreshing = false
             }
             // fixme: improve readability here
-            binding.topProgressBar.isVisible = resource is Resource.Loading
-                && !resource.data.isNullOrEmpty()
-            binding.centerProgressBar.isVisible = resource is Resource.Loading
-                && resource.data.isNullOrEmpty()
+            binding.topProgressBar.isVisible = resource is ChatListResource.Loading
+                && !resource.items.isNullOrEmpty()
+            binding.centerProgressBar.isVisible = resource is ChatListResource.Loading
+                && resource.items.isNullOrEmpty()
 
             // fixme: don't make this overlap with snackbar when there's an error + empty results
-            binding.noResults.isVisible = resource !is Resource.Loading
-                && resource.data.isNullOrEmpty()
+            binding.noResults.isVisible = resource !is ChatListResource.Loading
+                && resource.items.isNullOrEmpty()
                 && adapter.currentList.isEmpty()
 
-            if (!resource.data.isNullOrEmpty()) {
-                adapter.submitList(resource.data)
+            if (!resource.items.isNullOrEmpty()) {
+                adapter.submitList(resource.items)
             }
 
-            if (resource is Resource.Error) {
+            if (resource is ChatListResource.Error) {
                 snackbarManager.showSnackbar(
                     view = view,
                     message = resource.throwable.message.toString(),

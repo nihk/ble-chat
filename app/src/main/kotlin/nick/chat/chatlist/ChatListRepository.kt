@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import nick.chat.data.CurrentTime
 import nick.chat.data.local.DeviceCacheThreshold
-import nick.chat.data.Resource
 import nick.chat.data.local.Device
 import nick.chat.data.local.DeviceAndMessages
 import nick.chat.data.local.DeviceAndMessagesDao
@@ -19,7 +18,7 @@ import nick.chat.data.local.DevicesDao
 import nick.chat.data.local.Message
 
 interface ChatListRepository {
-    fun items(): Flow<Resource<List<ChatListItem>>>
+    fun items(): Flow<ChatListResource>
 }
 
 class ScanningChatListRepository @Inject constructor(
@@ -30,20 +29,20 @@ class ScanningChatListRepository @Inject constructor(
     private val currentTime: CurrentTime
 ) : ChatListRepository {
 
-    override fun items(): Flow<Resource<List<ChatListItem>>> = flow {
-        emit(Resource.Loading())
-        emit(Resource.Loading(deviceAndMessagesDao.selectAll().first().toChatListItems()))
+    override fun items(): Flow<ChatListResource> = flow {
+        emit(ChatListResource.Loading())
+        emit(ChatListResource.Loading(deviceAndMessagesDao.selectAll().first().toChatListItems()))
 
         val flow = when (val result = bluetoothScanner.result()) {
             is BluetoothScanner.Result.Error -> deviceAndMessagesDao.selectAll()
-                .map { items -> Resource.Error(items.toChatListItems(), result.error) }
+                .map { items -> ChatListResource.Error(items.toChatListItems(), result.error) }
             is BluetoothScanner.Result.Success -> {
                 devicesDao.insertAndPurgeOldDevices(
                     result.scans.toDevices(),
                     deviceCacheThreshold.threshold
                 )
                 deviceAndMessagesDao.selectAll()
-                    .map { items -> Resource.Success(items.toChatListItems()) }
+                    .map { items -> ChatListResource.Success(items.toChatListItems()) }
             }
         }
 

@@ -49,6 +49,10 @@ class MainViewModel(
         viewModelScope.launch { bluetoothUsability.checkUsability() }
     }
 
+    fun connectTo(address: String) {
+
+    }
+
     companion object {
         private val SUBSCRIBE_TIMEOUT = 5.toDuration(DurationUnit.SECONDS)
     }

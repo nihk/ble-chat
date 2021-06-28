@@ -27,7 +27,8 @@
             android:layout_height="0dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toTopOf="@id/input"
-            app:layout_constraintTop_toBottomOf="@id/top_progress_bar" />
+            app:layout_constraintTop_toBottomOf="@id/top_progress_bar"
+            app:stackFromEnd="true" />
 
         <EditText
             android:id="@+id/input"

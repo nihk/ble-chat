@@ -14,7 +14,8 @@ class SnackbarManager @Inject constructor()  {
         action: () -> Unit = {}
     ) {
         dismiss()
-        snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
+        val duration = if (buttonText == null) Snackbar.LENGTH_SHORT else Snackbar.LENGTH_INDEFINITE
+        snackbar = Snackbar.make(view, message, duration)
             .setAction(buttonText) { action() }
             .also { it.show() }
     }

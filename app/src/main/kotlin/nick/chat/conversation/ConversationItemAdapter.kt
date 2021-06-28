@@ -2,6 +2,7 @@ package nick.chat.conversation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -35,8 +36,11 @@ class ConversationItemViewHolder(
 
     fun bind(item: ConversationItem) {
         binding.message.text = item.message
-        if (item.isMe) {
-            // todo: anchor to end to screen
+        val bias = if (item.isMe) 1.0f else 0.0f
+        ConstraintSet().apply {
+            clone(binding.root)
+            setHorizontalBias(binding.message.id, bias)
+            applyTo(binding.root)
         }
     }
 }

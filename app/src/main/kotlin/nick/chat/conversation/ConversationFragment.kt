@@ -24,7 +24,6 @@ import nick.chat.databinding.ConversationFragmentBinding
 import nick.chat.ui.SnackbarManager
 import nick.main.MainViewModel
 
-// todo: scroll recyclerview from bottom, like most chat apps UX
 class ConversationFragment @Inject constructor(
     private val conversationVmFactory: ConversationViewModel.Factory,
     private val mainViewModelFactory: MainViewModel.Factory,
@@ -45,7 +44,6 @@ class ConversationFragment @Inject constructor(
 
         mainViewModel.setTitle(name ?: address)
 
-        // fixme: use refresh-style template that ChatListFragment/ViewModel does
         mainViewModel.sideEffects
             .flowWithLifecycle(viewLifecycleOwner.lifecycle)
             .filter { it is BluetoothUsability.SideEffect.UseBluetooth }
